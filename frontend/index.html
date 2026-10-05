@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recomeço — Apoio para sair do vício em apostas</title>
+  <meta name="description" content="Recomeço: avaliação gratuita, informação, jogos sem apostas e apoio para quem quer se livrar do vício em bets e cassinos online.">
+  <link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    try { const t = localStorage.getItem('recomeco-tema'); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+  <!-- ============================== CABEÇALHO ============================== -->
+  <header class="topo" id="topo">
+    <div class="container topo__inner">
+      <a href="#inicio" class="marca" aria-label="Recomeço — início">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="20" r="8" fill="var(--sol)"/><path d="M2 22h28" stroke="var(--primaria)" stroke-width="3" stroke-linecap="round"/><path d="M16 4v4M6 9l3 3M26 9l-3 3" stroke="var(--sol)" stroke-width="2.5" stroke-linecap="round"/></svg>
+        <span>Recomeço</span>
+      </a>
+      <nav class="menu" id="menu" aria-label="Navegação principal">
+        <a href="#entenda">Entenda</a>
+        <a href="#dados">Dados</a>
+        <a href="#avaliacao">Avaliação</a>
+        <a href="#jornada">Minha jornada</a>
+        <a href="#distrair">Jogos</a>
+        <a href="#mural">Mural</a>
+        <a href="#familia">Família</a>
+        <a href="#ajuda">Ajuda</a>
+      </nav>
+      <div class="topo__acoes">
+        <button class="icone-btn" id="btnTema" aria-label="Alternar tema claro/escuro" title="Alternar tema">
+          <svg class="i-sol" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="i-lua" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+        </button>
+        <button class="icone-btn menu-toggle" id="btnMenu" aria-label="Abrir menu" aria-expanded="false" aria-controls="menu">
+          <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <!-- ============================== HERO ============================== -->
+    <section class="hero" id="inicio">
+      <div class="hero__sol" aria-hidden="true"></div>
+      <div class="container hero__grid">
+        <div class="hero__texto revelar">
+          <span class="selo">Gratuito · Anônimo · Sem julgamentos</span>
+          <h1>Você não está sozinho(a).<br><em>Recomeçar é possível.</em></h1>
+          <p class="hero__lead">As apostas online estão destruindo finanças, relações e famílias pelo Brasil. Aqui você entende como o vício funciona, avalia sua situação e encontra caminhos reais para sair dele — um dia de cada vez.</p>
+          <div class="hero__ctas">
+            <a href="#avaliacao" class="btn btn--primario">Fazer minha avaliação</a>
+            <button class="btn btn--fantasma" data-abrir-sos>Preciso de ajuda agora</button>
+          </div>
+          <blockquote class="frase-dia" id="fraseDia" aria-live="polite">Um dia de cada vez.</blockquote>
+        </div>
+        <div class="hero__cartao revelar">
+          <div class="contador-hero">
+            <span class="contador-hero__rot">Com R$ 50 por dia em apostas, em um ano você perde</span>
+            <strong class="contador-hero__num" data-contar="18250" data-prefixo="R$ ">R$ 0</strong>
+            <span class="contador-hero__rot">dinheiro que poderia pagar</span>
+            <ul class="contador-hero__lista">
+              <li><span>🏠</span> cerca de 12 meses de aluguel</li>
+              <li><span>🛒</span> mais de 20 cestas básicas</li>
+              <li><span>🎓</span> um ano de faculdade particular</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== ENTENDA ============================== -->
+    <section class="secao" id="entenda">
+      <div class="container">
+        <header class="secao__cab revelar">
+          <span class="secao__sobre">Entenda o vício</span>
+          <h2>As apostas são feitas para você perder — e voltar</h2>
+          <p>Nada nas bets e nos cassinos online é por acaso. Cores, sons, bônus e "quase vitórias" são desenhados para prender sua atenção e seu dinheiro.</p>
+        </header>
+
+        <div class="ciclo revelar" id="ciclo" aria-label="O ciclo do vício"></div>
+
+        <div class="grade-3 truques">
+          <article class="cartao revelar">
+            <span class="cartao__icone">🎰</span>
+            <h3>Recompensa imprevisível</h3>
+            <p>Ganhos aleatórios viciam mais do que ganhos certos. É o mesmo mecanismo das máquinas caça-níqueis estudado há décadas.</p>
+          </article>
+          <article class="cartao revelar">
+            <span class="cartao__icone">😮‍💨</span>
+            <h3>O "quase ganhei"</h3>
+            <p>Duas figuras iguais e a terceira por pouco: o cérebro reage como se fosse vitória e pede mais uma rodada.</p>
+          </article>
+          <article class="cartao revelar">
+            <span class="cartao__icone">🎁</span>
+            <h3>Bônus e "rodadas grátis"</h3>
+            <p>Bônus exigem apostar várias vezes o valor antes de sacar. Na prática, prendem você por mais tempo na plataforma.</p>
+          </article>
+          <article class="cartao revelar">
+            <span class="cartao__icone">📱</span>
+            <h3>Acesso 24 horas</h3>
+            <p>No celular, a aposta está a um toque — no ônibus, no trabalho, na cama. Sem pausa, o controle some.</p>
+          </article>
+          <article class="cartao revelar">
+            <span class="cartao__icone">🤳</span>
+            <h3>Influenciadores</h3>
+            <p>Muitos ganham comissão sobre o que os seguidores perdem, e alguns usam contas de demonstração para mostrar ganhos falsos.</p>
+          </article>
+          <article class="cartao revelar">
+            <span class="cartao__icone">🧠</span>
+            <h3>Ilusão de controle</h3>
+            <p>"Eu entendo de futebol", "tenho uma estratégia". A sensação de controle é exatamente o que a casa quer que você sinta.</p>
+          </article>
+        </div>
+
+        <!-- Simulador -->
+        <div class="simulador revelar" id="simulador">
+          <div class="simulador__info">
+            <h3>Simulador: a casa sempre ganha</h3>
+            <p>Veja o que a matemática faz com seu saldo. O jogo simulado devolve, em média, a porcentagem escolhida (RTP) — igual aos slots reais.</p>
+            <form class="simulador__form" id="formSimulador">
+              <label>Saldo inicial
+                <input type="number" id="simSaldo" value="500" min="10" max="100000" step="10">
+              </label>
+              <label>Aposta por rodada
+                <input type="number" id="simAposta" value="5" min="1" max="1000" step="1">
+              </label>
+              <label>Retorno ao jogador (RTP): <output id="simRtpOut">96%</output>
+                <input type="range" id="simRtp" value="96" min="85" max="99" step="1">
+              </label>
+              <label>Rodadas
+                <input type="number" id="simRodadas" value="1000" min="50" max="5000" step="50">
+              </label>
+              <div class="simulador__btns">
+                <button class="btn btn--primario" type="submit">Simular 1 jogador</button>
+                <button class="btn btn--secundario" type="button" id="simMuitos">Simular 1.000 jogadores</button>
+              </div>
+            </form>
+          </div>
+          <div class="simulador__grafico">
+            <div class="grafico-linha" id="graficoSim">
+              <canvas id="canvasSim" aria-label="Gráfico do saldo ao longo das rodadas" role="img"></canvas>
+              <div class="tooltip" id="tooltipSim" hidden></div>
+            </div>
+            <div class="simulador__resultado" id="simResultado" aria-live="polite">Clique em simular para começar.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== DADOS ============================== -->
+    <section class="secao secao--alt" id="dados">
+      <div class="container">
+        <header class="secao__cab revelar">
+          <span class="secao__sobre">Dados</span>
+          <h2>O tamanho do problema no Brasil</h2>
+          <p>Números de órgãos oficiais e pesquisas recentes mostram que o vício em apostas virou uma questão de saúde pública.</p>
+        </header>
+
+        <div class="destaques" id="destaques"></div>
+
+        <div class="grade-2 dados-graficos">
+          <article class="painel revelar">
+            <h3>A cada R$ 100 apostados, quanto fica com a casa?</h3>
+            <p class="painel__sub">Perda média esperada por tipo de jogo (valores típicos de mercado)</p>
+            <div class="barras" id="barrasCasa"></div>
+            <p class="nota">Mesmo quando a margem parece pequena, ela se repete em cada rodada. Em 1.000 rodadas de R$ 5 num slot com 94% de retorno, a perda esperada é de R$ 300.</p>
+          </article>
+          <article class="painel revelar">
+            <h3>Sinais de que a aposta virou vício</h3>
+            <p class="painel__sub">Se você se identifica com 2 ou mais, vale procurar ajuda</p>
+            <ul class="checklist" id="sinais"></ul>
+          </article>
+        </div>
+
+        <article class="painel comunidade revelar">
+          <div class="comunidade__cab">
+            <div>
+              <h3>Nossa comunidade</h3>
+              <p class="painel__sub">Resultados anônimos de quem fez a avaliação neste site — atualizado em tempo real</p>
+            </div>
+            <button class="btn btn--secundario btn--peq" id="btnAtualizarStats">Atualizar</button>
+          </div>
+          <div class="stats-tiles" id="statsTiles"></div>
+          <div class="grade-3 stats-graficos">
+            <div><h4>Tipo de aposta</h4><div class="barras barras--compactas" id="statsTipo"></div></div>
+            <div><h4>Como começaram</h4><div class="barras barras--compactas" id="statsOrigem"></div></div>
+            <div><h4>No dia a dia</h4><div class="barras barras--compactas" id="statsDia"></div></div>
+          </div>
+        </article>
+
+        <article class="painel lei revelar">
+          <h3>O que diz a lei</h3>
+          <ul id="legislacao"></ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============================== AVALIAÇÃO ============================== -->
+    <section class="secao" id="avaliacao">
+      <div class="container container--estreito">
+        <header class="secao__cab revelar">
+          <span class="secao__sobre">Avaliação</span>
+          <h2>Como está sua relação com as apostas?</h2>
+          <p>Responda com sinceridade — ninguém vai saber quem você é. Não pedimos nome, e-mail nem telefone. Ao final, você recebe um plano personalizado.</p>
+        </header>
+
+        <div class="quest revelar" id="quest">
+          <div class="quest__progresso" aria-hidden="true"><span id="questBarra"></span></div>
+          <p class="quest__passo" id="questPasso">Etapa 1 de 8</p>
+
+          <form id="formQuest" novalidate>
+            <!-- 1 -->
+            <fieldset class="etapa ativa" data-etapa="1">
+              <legend>Qual é a sua faixa de idade?</legend>
+              <div class="opcoes opcoes--grade" data-campo="faixaEtaria" data-tipo="radio">
+                <label class="opcao"><input type="radio" name="faixaEtaria" value="menor"><span>Menos de 18</span></label>
+                <label class="opcao"><input type="radio" name="faixaEtaria" value="18-24"><span>18 a 24</span></label>
+                <label class="opcao"><input type="radio" name="faixaEtaria" value="25-34"><span>25 a 34</span></label>
+                <label class="opcao"><input type="radio" name="faixaEtaria" value="35-44"><span>35 a 44</span></label>
+                <label class="opcao"><input type="radio" name="faixaEtaria" value="45-59"><span>45 a 59</span></label>
+                <label class="opcao"><input type="radio" name="faixaEtaria" value="60+"><span>60 ou mais</span></label>
+              </div>
+            </fieldset>
+
+            <!-- 2 -->
+            <fieldset class="etapa" data-etapa="2">
+              <legend>Como você começou a apostar?</legend>
+              <p class="etapa__ajuda">Escolha o que mais se aproxima da sua história.</p>
+              <div class="opcoes opcoes--grade" data-campo="origem" data-tipo="radio">
+                <label class="opcao"><input type="radio" name="origem" value="amigos"><span>👥 Amigos ou colegas me apresentaram</span></label>
+                <label class="opcao"><input type="radio" name="origem" value="propaganda"><span>📺 Propaganda na TV, sites ou redes</span></label>
+                <label class="opcao"><input type="radio" name="origem" value="influenciador"><span>🤳 Vi um influenciador ganhando</span></label>
+                <label class="opcao"><input type="radio" name="origem" value="dinheiro_rapido"><span>💸 Precisava de dinheiro rápido</span></label>
+                <label class="opcao"><input type="radio" name="origem" value="futebol"><span>⚽ Para deixar o futebol mais emocionante</span></label>
+                <label class="opcao"><input type="radio" name="origem" value="tedio"><span>😶 Por tédio ou para me distrair</span></label>
+                <label class="opcao"><input type="radio" name="origem" value="familia"><span>🏠 Alguém da família já apostava</span></label>
+                <label class="opcao"><input type="radio" name="origem" value="outro"><span>✏️ Outro motivo</span></label>
+              </div>
+            </fieldset>
+
+            <!-- 3 -->
+            <fieldset class="etapa" data-etapa="3">
+              <legend>Há quanto tempo você aposta com frequência?</legend>
+              <div class="opcoes opcoes--grade" data-campo="tempo" data-tipo="radio">
+                <label class="opcao"><input type="radio" name="tempo" value="menos6m"><span>Menos de 6 meses</span></label>
+                <label class="opcao"><input type="radio" name="tempo" value="6a12m"><span>De 6 meses a 1 ano</span></label>
+                <label class="opcao"><input type="radio" name="tempo" value="1a3a"><span>De 1 a 3 anos</span></label>
+                <label class="opcao"><input type="radio" name="tempo" value="mais3a"><span>Mais de 3 anos</span></label>
+              </div>
+              <legend class="legend-2">Com que frequência você aposta?</legend>
+              <div class="opcoes opcoes--grade" data-campo="frequencia" data-tipo="radio">
+                <label class="opcao"><input type="radio" name="frequencia" value="raramente"><span>Raramente</span></label>
+                <label class="opcao"><input type="radio" name="frequencia" value="semanal"><span>Algumas vezes por semana</span></label>
+                <label class="opcao"><input type="radio" name="frequencia" value="diaria"><span>Todos os dias</span></label>
+                <label class="opcao"><input type="radio" name="frequencia" value="varias_dia"><span>Várias vezes ao dia</span></label>
+              </div>
+            </fieldset>
+
+            <!-- 4 -->
+            <fieldset class="etapa" data-etapa="4">
+              <legend>Em que tipo de jogo você aposta?</legend>
+              <p class="etapa__ajuda">Pode marcar mais de uma opção.</p>
+              <div class="opcoes opcoes--grade" data-campo="tipos" data-tipo="checkbox">
+                <label class="opcao"><input type="checkbox" name="tipos" value="esportiva"><span>⚽ Apostas esportivas</span></label>
+                <label class="opcao"><input type="checkbox" name="tipos" value="cassino"><span>🎰 Cassino online (slots, "tigrinho", roleta)</span></label>
+                <label class="opcao"><input type="checkbox" name="tipos" value="crash"><span>✈️ Jogos crash (Aviator, Mines…)</span></label>
+                <label class="opcao"><input type="checkbox" name="tipos" value="poquer"><span>🃏 Pôquer ou jogos de cartas</span></label>
+                <label class="opcao"><input type="checkbox" name="tipos" value="loteria"><span>🎟️ Loterias e jogo do bicho</span></label>
+              </div>
+              <legend class="legend-2">Quanto você gasta com apostas por mês, em média?</legend>
+              <div class="gasto">
+                <span class="gasto__valor">R$ <output id="gastoOut">300</output></span>
+                <input type="range" id="gastoRange" min="0" max="10000" step="50" value="300" aria-label="Gasto mensal em reais">
+                <label class="gasto__exato">ou digite o valor exato: <input type="number" id="gastoMensal" name="gastoMensal" min="0" max="10000000" value="300"></label>
+              </div>
+            </fieldset>
+
+            <!-- 5 -->
+            <fieldset class="etapa" data-etapa="5">
+              <legend>Como é o seu dia a dia com as apostas?</legend>
+              <p class="etapa__ajuda">Marque tudo o que acontece com você.</p>
+              <div class="opcoes" data-campo="diaADia" data-tipo="checkbox">
+                <label class="opcao opcao--linha"><input type="checkbox" name="diaADia" value="acorda_pensando"><span>Acordo e a primeira coisa que penso é apostar</span></label>
+                <label class="opcao opcao--linha"><input type="checkbox" name="diaADia" value="aposta_trabalho"><span>Aposto durante o trabalho ou os estudos</span></label>
+                <label class="opcao opcao--linha"><input type="checkbox" name="diaADia" value="perde_sono"><span>Fico acordado(a) de madrugada apostando</span></label>
+                <label class="opcao opcao--linha"><input type="checkbox" name="diaADia" value="ansiedade"><span>Sinto ansiedade, culpa ou tristeza depois de apostar</span></label>
+                <label class="opcao opcao--linha"><input type="checkbox" name="diaADia" value="mente"><span>Minto sobre quanto aposto ou perdi</span></label>
+                <label class="opcao opcao--linha"><input type="checkbox" name="diaADia" value="isolamento"><span>Me afastei de amigos e da família</span></label>
+                <label class="opcao opcao--linha"><input type="checkbox" name="diaADia" value="pede_emprestado"><span>Peço dinheiro emprestado para apostar</span></label>
+                <label class="opcao opcao--linha"><input type="checkbox" name="diaADia" value="recuperar_perdas"><span>Aposto para tentar recuperar o que perdi</span></label>
+                <label class="opcao opcao--linha"><input type="checkbox" name="diaADia" value="irritado_sem_jogar"><span>Fico irritado(a) quando não consigo apostar</span></label>
+                <label class="opcao opcao--linha"><input type="checkbox" name="diaADia" value="deixou_lazer"><span>Deixei de fazer coisas que eu gostava</span></label>
+              </div>
+            </fieldset>
+
+            <!-- 6 -->
+            <fieldset class="etapa" data-etapa="6">
+              <legend>Você tem dívidas por causa das apostas?</legend>
+              <div class="opcoes opcoes--grade" data-campo="dividas" data-tipo="radio">
+                <label class="opcao"><input type="radio" name="dividas" value="nao"><span>Não</span></label>
+                <label class="opcao"><input type="radio" name="dividas" value="pequenas"><span>Sim, pequenas</span></label>
+                <label class="opcao"><input type="radio" name="dividas" value="grandes"><span>Sim, grandes</span></label>
+              </div>
+              <legend class="legend-2">Você esconde as apostas da sua família?</legend>
+              <div class="opcoes opcoes--grade" data-campo="escondeFamilia" data-tipo="radio">
+                <label class="opcao"><input type="radio" name="escondeFamilia" value="nao"><span>Não, eles sabem</span></label>
+                <label class="opcao"><input type="radio" name="escondeFamilia" value="as_vezes"><span>Às vezes</span></label>
+                <label class="opcao"><input type="radio" name="escondeFamilia" value="sim"><span>Sim, escondo</span></label>
+              </div>
+            </fieldset>
+
+            <!-- 7 -->
+            <fieldset class="etapa" data-etapa="7">
+              <legend>Nos últimos 12 meses, com que frequência…</legend>
+              <p class="etapa__ajuda">Perguntas baseadas no PGSI, índice usado internacionalmente para avaliar problemas com jogo.</p>
+              <div class="pgsi" id="pgsi"></div>
+            </fieldset>
+
+            <!-- 8 -->
+            <fieldset class="etapa" data-etapa="8">
+              <legend>Você se arrepende de ter começado a apostar?</legend>
+              <div class="escala" data-campo="arrependimento" data-tipo="radio">
+                <label class="escala__item"><input type="radio" name="arrependimento" value="1"><span>😐</span><small>Nada</small></label>
+                <label class="escala__item"><input type="radio" name="arrependimento" value="2"><span>🙁</span><small>Pouco</small></label>
+                <label class="escala__item"><input type="radio" name="arrependimento" value="3"><span>😟</span><small>Mais ou menos</small></label>
+                <label class="escala__item"><input type="radio" name="arrependimento" value="4"><span>😢</span><small>Bastante</small></label>
+                <label class="escala__item"><input type="radio" name="arrependimento" value="5"><span>😭</span><small>Muito</small></label>
+              </div>
+              <legend class="legend-2">Você quer realmente ajuda para parar?</legend>
+              <div class="opcoes opcoes--grade" data-campo="querAjuda" data-tipo="radio">
+                <label class="opcao"><input type="radio" name="querAjuda" value="sim"><span>💪 Sim, eu quero parar</span></label>
+                <label class="opcao"><input type="radio" name="querAjuda" value="talvez"><span>🤔 Não tenho certeza</span></label>
+                <label class="opcao"><input type="radio" name="querAjuda" value="nao"><span>✋ Ainda não</span></label>
+              </div>
+              <label class="relato">Se quiser, desabafe: como as apostas afetam sua vida? <small>(fica só no seu navegador, não é enviado)</small>
+                <textarea id="relato" rows="3" maxlength="1000" placeholder="Escreva livremente…"></textarea>
+              </label>
+            </fieldset>
+
+            <p class="quest__erro" id="questErro" role="alert"></p>
+            <div class="quest__nav">
+              <button type="button" class="btn btn--fantasma" id="btnVoltar" disabled>← Voltar</button>
+              <button type="button" class="btn btn--primario" id="btnAvancar">Avançar →</button>
+            </div>
+          </form>
+
+          <div class="resultado" id="resultado" hidden></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== JORNADA ============================== -->
+    <section class="secao secao--alt" id="jornada">
+      <div class="container">
+        <header class="secao__cab revelar">
+          <span class="secao__sobre">Minha jornada</span>
+          <h2>Cada dia sem apostar é uma vitória</h2>
+          <p>Acompanhe seu progresso, veja o dinheiro que deixou de perder e registre como está se sentindo. Tudo fica salvo apenas no seu aparelho.</p>
+        </header>
+
+        <div class="jornada">
+          <article class="painel jornada__contador revelar">
+            <div class="anel" id="anel">
+              <svg viewBox="0 0 120 120" aria-hidden="true">
+                <circle class="anel__fundo" cx="60" cy="60" r="52"/>
+                <circle class="anel__valor" id="anelValor" cx="60" cy="60" r="52"/>
+              </svg>
+              <div class="anel__centro">
+                <strong id="diasNum">0</strong>
+                <span>dias sem apostar</span>
+              </div>
+            </div>
+            <p class="jornada__proxima" id="proximaMeta">Defina a data abaixo para começar.</p>
+            <form class="jornada__form" id="formJornada">
+              <label>Último dia em que apostei
+                <input type="date" id="dataInicio" required>
+              </label>
+              <label>Quanto eu gastava por mês (R$)
+                <input type="number" id="gastoJornada" min="0" step="10" placeholder="Ex.: 500">
+              </label>
+              <button class="btn btn--primario" type="submit">Salvar</button>
+            </form>
+            <button class="link-btn" id="btnRecaida">Tive uma recaída</button>
+          </article>
+
+          <article class="painel revelar">
+            <h3>Dinheiro preservado</h3>
+            <p class="economia" id="economia">R$ 0</p>
+            <p class="painel__sub" id="economiaTxt">Informe quanto gastava por mês para calcular.</p>
+            <div class="meta">
+              <label>Meu objetivo com esse dinheiro
+                <input type="text" id="metaNome" maxlength="40" placeholder="Ex.: Viagem com a família">
+              </label>
+              <label>Valor do objetivo (R$)
+                <input type="number" id="metaValor" min="0" step="50" placeholder="Ex.: 3000">
+              </label>
+              <div class="meta__barra" aria-hidden="true"><span id="metaBarra"></span></div>
+              <p class="painel__sub" id="metaTxt"></p>
+            </div>
+          </article>
+
+          <article class="painel revelar">
+            <h3>Conquistas</h3>
+            <ul class="conquistas" id="conquistas"></ul>
+          </article>
+
+          <article class="painel jornada__diario revelar">
+            <h3>Como você está hoje?</h3>
+            <div class="humor" id="humor" role="radiogroup" aria-label="Seu humor hoje">
+              <button type="button" data-humor="5" aria-label="Muito bem">😄</button>
+              <button type="button" data-humor="4" aria-label="Bem">🙂</button>
+              <button type="button" data-humor="3" aria-label="Normal">😐</button>
+              <button type="button" data-humor="2" aria-label="Mal">😔</button>
+              <button type="button" data-humor="1" aria-label="Muito mal">😣</button>
+            </div>
+            <label class="sr">Anotação do dia</label>
+            <textarea id="diarioTexto" rows="2" maxlength="300" placeholder="O que ajudou ou atrapalhou hoje? (opcional)"></textarea>
+            <label class="vontade"><input type="checkbox" id="diarioVontade"> Senti vontade de apostar hoje</label>
+            <button class="btn btn--secundario btn--peq" id="btnDiario">Registrar dia</button>
+            <ul class="diario-lista" id="diarioLista"></ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== JOGOS ============================== -->
+    <section class="secao" id="distrair">
+      <div class="container">
+        <header class="secao__cab revelar">
+          <span class="secao__sobre">Distraia a mente</span>
+          <h2>Jogos sem dinheiro, sem apostas, só diversão</h2>
+          <p>A vontade de apostar costuma passar em 15 a 30 minutos. Ocupe esse tempo com algo que faz bem.</p>
+        </header>
+
+        <div class="abas revelar" role="tablist" aria-label="Jogos">
+          <button role="tab" aria-selected="true" data-aba="memoria">🧩 Memória</button>
+          <button role="tab" aria-selected="false" data-aba="cobrinha">🐍 Cobrinha</button>
+          <button role="tab" aria-selected="false" data-aba="quiz">❓ Mito ou verdade</button>
+          <button role="tab" aria-selected="false" data-aba="respiracao">🌬️ Respiração</button>
+          <button role="tab" aria-selected="false" data-aba="velha">⭕ Jogo da velha</button>
+          <button role="tab" aria-selected="false" data-aba="ideias">💡 O que fazer agora?</button>
+        </div>
+
+        <div class="jogo-area painel revelar">
+          <!-- Memória -->
+          <div class="jogo ativo" id="jogo-memoria" role="tabpanel">
+            <div class="jogo__barra">
+              <span>Jogadas: <strong id="memJogadas">0</strong></span>
+              <span>Tempo: <strong id="memTempo">0s</strong></span>
+              <span>Recorde: <strong id="memRecorde">—</strong></span>
+              <button class="btn btn--secundario btn--peq" id="memReiniciar">Novo jogo</button>
+            </div>
+            <div class="memoria" id="memoria"></div>
+            <p class="jogo__msg" id="memMsg" aria-live="polite"></p>
+          </div>
+
+          <!-- Cobrinha -->
+          <div class="jogo" id="jogo-cobrinha" role="tabpanel" hidden>
+            <div class="jogo__barra">
+              <span>Pontos: <strong id="cobraPontos">0</strong></span>
+              <span>Recorde: <strong id="cobraRecorde">0</strong></span>
+              <button class="btn btn--secundario btn--peq" id="cobraIniciar">Jogar</button>
+            </div>
+            <div class="cobrinha">
+              <canvas id="canvasCobra" width="400" height="400" aria-label="Jogo da cobrinha. Use as setas do teclado." role="img"></canvas>
+              <div class="dpad" aria-label="Controles">
+                <button data-dir="up" aria-label="Cima">▲</button>
+                <button data-dir="left" aria-label="Esquerda">◀</button>
+                <button data-dir="down" aria-label="Baixo">▼</button>
+                <button data-dir="right" aria-label="Direita">▶</button>
+              </div>
+            </div>
+            <p class="jogo__msg">Use as setas do teclado, deslize o dedo ou os botões. Coma as frutas e não bata em você mesmo!</p>
+          </div>
+
+          <!-- Quiz -->
+          <div class="jogo" id="jogo-quiz" role="tabpanel" hidden>
+            <div class="quiz" id="quiz"></div>
+          </div>
+
+          <!-- Respiração -->
+          <div class="jogo" id="jogo-respiracao" role="tabpanel" hidden>
+            <div class="respiracao">
+              <div class="respiracao__circulo" id="respCirculo"><span id="respTexto">Pronto?</span></div>
+              <div class="respiracao__controles">
+                <label>Técnica
+                  <select id="respTecnica">
+                    <option value="caixa">Respiração quadrada (4-4-4-4)</option>
+                    <option value="478">Relaxante (4-7-8)</option>
+                  </select>
+                </label>
+                <button class="btn btn--primario" id="respBtn">Começar</button>
+                <p>Ciclos completos: <strong id="respCiclos">0</strong></p>
+              </div>
+            </div>
+            <p class="jogo__msg">Quando a vontade de apostar aparecer, respire. Alguns ciclos já acalmam o corpo e a mente.</p>
+          </div>
+
+          <!-- Jogo da velha -->
+          <div class="jogo" id="jogo-velha" role="tabpanel" hidden>
+            <div class="jogo__barra">
+              <span>Você (X): <strong id="velhaVoce">0</strong></span>
+              <span>Empates: <strong id="velhaEmpates">0</strong></span>
+              <span>Computador (O): <strong id="velhaCpu">0</strong></span>
+              <button class="btn btn--secundario btn--peq" id="velhaReiniciar">Nova partida</button>
+            </div>
+            <div class="velha" id="velha"></div>
+            <p class="jogo__msg" id="velhaMsg" aria-live="polite">Sua vez!</p>
+          </div>
+
+          <!-- Ideias -->
+          <div class="jogo" id="jogo-ideias" role="tabpanel" hidden>
+            <div class="ideias">
+              <p class="ideias__icone" id="ideiaIcone">💡</p>
+              <p class="ideias__texto" id="ideiaTexto">Clique no botão para receber uma ideia do que fazer agora, longe das apostas.</p>
+              <button class="btn btn--primario" id="ideiaBtn">Me dá uma ideia</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== MURAL ============================== -->
+    <section class="secao secao--alt" id="mural">
+      <div class="container">
+        <header class="secao__cab revelar">
+          <span class="secao__sobre">Mural de apoio</span>
+          <h2>Histórias que dão força</h2>
+          <p>Deixe uma mensagem anônima para quem está lutando contra o vício. Sua experiência pode ser o empurrão que alguém precisa.</p>
+        </header>
+        <div class="mural">
+          <form class="painel mural__form revelar" id="formMural">
+            <label>Apelido (opcional)
+              <input type="text" id="muralApelido" maxlength="30" placeholder="Ex.: Recomeçando, de SP">
+            </label>
+            <label>Tipo de mensagem
+              <select id="muralTipo">
+                <option value="superacao">Minha superação</option>
+                <option value="apoio">Mensagem de apoio</option>
+                <option value="familia">Sou familiar</option>
+              </select>
+            </label>
+            <label>Dias sem apostar (opcional)
+              <input type="number" id="muralDias" min="0" max="36500" placeholder="0">
+            </label>
+            <label>Mensagem
+              <textarea id="muralTexto" rows="4" maxlength="600" required placeholder="Escreva com carinho. Não coloque dados pessoais nem links."></textarea>
+            </label>
+            <p class="mural__contagem"><span id="muralConta">0</span>/600</p>
+            <button class="btn btn--primario" type="submit">Publicar mensagem</button>
+            <p class="mural__status" id="muralStatus" role="status"></p>
+          </form>
+          <div class="mural__lista" id="muralLista" aria-live="polite"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== FAMÍLIA ============================== -->
+    <section class="secao" id="familia">
+      <div class="container">
+        <header class="secao__cab revelar">
+          <span class="secao__sobre">Para a família</span>
+          <h2>Alguém que você ama está viciado em apostas?</h2>
+          <p>O vício afeta a casa inteira. Saber como agir protege você e aumenta as chances da pessoa buscar tratamento.</p>
+        </header>
+        <div class="grade-2">
+          <article class="cartao cartao--verde revelar">
+            <h3>✅ O que ajuda</h3>
+            <ul>
+              <li>Conversar em um momento calmo, falando do que você sente ("eu fico preocupado(a)…")</li>
+              <li>Tratar como um problema de saúde, não como falta de caráter</li>
+              <li>Proteger o orçamento da casa: contas separadas e senhas trocadas</li>
+              <li>Ajudar a buscar tratamento e ir junto à primeira consulta</li>
+              <li>Reconhecer cada pequena vitória e cada dia sem apostar</li>
+              <li>Cuidar de você também — familiares podem procurar o CAPS e grupos de apoio</li>
+            </ul>
+          </article>
+          <article class="cartao cartao--vermelho revelar">
+            <h3>⛔ O que atrapalha</h3>
+            <ul>
+              <li>Pagar as dívidas de aposta da pessoa sem um plano de tratamento</li>
+              <li>Emprestar dinheiro "só desta vez"</li>
+              <li>Humilhar, gritar ou expor a pessoa para outros</li>
+              <li>Fingir que o problema não existe</li>
+              <li>Fazer ameaças que você não vai cumprir</li>
+              <li>Achar que a recaída significa que não tem jeito</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================== AJUDA ============================== -->
+    <section class="secao secao--alt" id="ajuda">
+      <div class="container">
+        <header class="secao__cab revelar">
+          <span class="secao__sobre">Onde buscar ajuda</span>
+          <h2>Ajuda gratuita existe — e funciona</h2>
+        </header>
+        <div class="grade-3 contatos">
+          <article class="cartao contato revelar">
+            <span class="contato__num">188</span>
+            <h3>CVV — Centro de Valorização da Vida</h3>
+            <p>Apoio emocional gratuito e sigiloso, 24 horas, por telefone, chat ou e-mail.</p>
+            <a class="btn btn--secundario btn--peq" href="tel:188">Ligar 188</a>
+          </article>
+          <article class="cartao contato revelar">
+            <span class="contato__num">CAPS</span>
+            <h3>Centro de Atenção Psicossocial (SUS)</h3>
+            <p>Atendimento gratuito com psicólogos e psiquiatras. Procure a unidade de saúde mais próxima para ser encaminhado(a).</p>
+          </article>
+          <article class="cartao contato revelar">
+            <span class="contato__num">JA</span>
+            <h3>Jogadores Anônimos</h3>
+            <p>Grupos de apoio mútuo, gratuitos, com reuniões presenciais e online em todo o Brasil.</p>
+          </article>
+          <article class="cartao contato revelar">
+            <span class="contato__num">192</span>
+            <h3>SAMU</h3>
+            <p>Em caso de emergência ou risco à vida, ligue imediatamente.</p>
+            <a class="btn btn--secundario btn--peq" href="tel:192">Ligar 192</a>
+          </article>
+          <article class="cartao contato revelar">
+            <span class="contato__num">🚫</span>
+            <h3>Autoexclusão e bloqueio</h3>
+            <p>Peça autoexclusão nas casas de apostas autorizadas (.bet.br) e instale um bloqueador gratuito, como o BetBlocker.</p>
+          </article>
+          <article class="cartao contato revelar">
+            <span class="contato__num">⚖️</span>
+            <h3>Procon e Defensoria Pública</h3>
+            <p>Orientação gratuita para renegociar dívidas e entender seus direitos como consumidor.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <div class="container rodape__inner">
+      <div>
+        <strong class="marca marca--rodape">Recomeço</strong>
+        <p>Projeto educativo e de apoio. Este site não substitui atendimento médico ou psicológico. Se você está em sofrimento, procure ajuda profissional.</p>
+      </div>
+      <p class="rodape__fontes">Fontes dos dados: Banco Central do Brasil, Instituto Locomotiva, The Lancet Public Health, OMS (CID-11), Lei 14.790/2023. Números arredondados — consulte as fontes originais para detalhes.</p>
+    </div>
+  </footer>
+
+  <!-- Botão flutuante de ajuda -->
+  <button class="sos" data-abrir-sos aria-haspopup="dialog">
+    <span aria-hidden="true">🆘</span> Estou com vontade de apostar
+  </button>
+
+  <dialog class="modal" id="modalSos" aria-labelledby="sosTitulo">
+    <button class="modal__fechar" id="sosFechar" aria-label="Fechar">✕</button>
+    <h2 id="sosTitulo">Respire. Essa vontade vai passar.</h2>
+    <p>A fissura costuma durar poucos minutos. Fique comigo durante os próximos 10 minutos — sem abrir nenhum app de aposta.</p>
+    <div class="sos-timer">
+      <strong id="sosTempo">10:00</strong>
+      <button class="btn btn--primario" id="sosIniciar">Começar os 10 minutos</button>
+    </div>
+    <ol class="sos-passos">
+      <li>Afaste o celular ou saia do app agora.</li>
+      <li>Beba um copo de água e respire fundo 5 vezes.</li>
+      <li>Mande uma mensagem para alguém de confiança.</li>
+      <li>Pense: "o que vai acontecer depois que eu perder?"</li>
+      <li>Jogue um dos jogos desta página até a vontade passar.</li>
+    </ol>
+    <div class="sos-contatos">
+      <a class="btn btn--secundario" href="tel:188">📞 CVV 188 (24h)</a>
+      <a class="btn btn--fantasma" href="#distrair" id="sosJogos">🎮 Ir para os jogos</a>
+    </div>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <script src="js/api.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/dados.js"></script>
+  <script src="js/avaliacao.js"></script>
+  <script src="js/jornada.js"></script>
+  <script src="js/jogos.js"></script>
+  <script src="js/mural.js"></script>
+</body>
+</html>
