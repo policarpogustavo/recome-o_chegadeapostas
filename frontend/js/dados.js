@@ -115,6 +115,10 @@
   async function carregarStats() {
     let s;
     try { s = await Api.get('estatisticas'); } catch { return; }
+    if (Api.semServidor) {
+      document.getElementById('statsTitulo').textContent = 'Suas avaliações';
+      document.getElementById('statsSub').textContent = 'Nesta versão online, os resultados ficam só no seu aparelho — ninguém mais vê.';
+    }
     const tiles = [
       [Util.numero(s.total), 'avaliações feitas'],
       [`${Util.numero(s.percentQueremAjuda)}%`, 'querem ajuda para parar'],
