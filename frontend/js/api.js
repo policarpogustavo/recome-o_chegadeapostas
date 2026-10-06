@@ -1,20 +1,29 @@
 /* Utilitários compartilhados: chamadas à API, formatação e armazenamento local. */
 const Api = {
-  async get(rota) {
-    const res = await fetch(`/api/${rota}`);
-    if (!res.ok) throw new Error((await res.json().catch(() => ({}))).erro || `Erro ${res.status}`);
-    return res.json();
+  // Sem o servidor Java (ex.: GitHub Pages), usa a versão local da API em offline.js.
+  semServidor: location.hostname.endsWith('github.io') || location.protocol === 'file:',
+
+  async chamar(metodo, rota, dados) {
+    if (!this.semServidor) {
+      let res;
+      try {
+        res = await fetch(`/api/${rota}`, metodo === 'GET' ? undefined : {
+          method: metodo,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados),
+        });
+      } catch { res = null; }
+      if (res && (res.headers.get('Content-Type') || '').includes('application/json')) {
+        const corpo = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(corpo.erro || `Erro ${res.status}`);
+        return corpo;
+      }
+      this.semServidor = true;
+    }
+    return ApiLocal.chamar(metodo, rota, dados);
   },
-  async post(rota, dados) {
-    const res = await fetch(`/api/${rota}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(dados),
-    });
-    const corpo = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(corpo.erro || `Erro ${res.status}`);
-    return corpo;
-  },
+  get(rota) { return this.chamar('GET', rota); },
+  post(rota, dados) { return this.chamar('POST', rota, dados); },
 };
 
 const Util = {

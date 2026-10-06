@@ -32,6 +32,12 @@ run.bat
 
 Acesse http://localhost:8080. Para outra porta, defina a variável `PORT`.
 
+### Versão online (GitHub Pages)
+
+O site também funciona sem o servidor Java: https://policarpogustavo.github.io/recome-o_chegadeapostas/
+
+Nesse modo, `frontend/js/offline.js` faz o papel da API dentro do navegador. A avaliação, o mural e as estatísticas ficam salvos apenas no aparelho de quem usa (localStorage), então o mural e as estatísticas não são compartilhados entre visitantes.
+
 ## API
 
 | Método | Rota | Descrição |
