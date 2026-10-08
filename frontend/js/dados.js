@@ -73,6 +73,14 @@
         .sort((a, b) => b.valor - a.valor),
       { max: 60, formatar: v => Util.moeda(v, v % 1 ? 2 : 0) });
 
+    renderBarras(document.getElementById('barrasRisco'), d.riscoPorGrupo,
+      { max: 100, formatar: v => `${Util.numero(v, 1)}%` });
+
+    renderBarras(document.getElementById('barrasCusto'), d.custoSocial,
+      { max: 20, formatar: v => `R$ ${Util.numero(v, v % 1 ? 1 : 0)} bi` });
+
+    document.getElementById('danos').innerHTML = d.danos.map(x => `<li>${Util.escapar(x)}</li>`).join('');
+
     const sinais = document.getElementById('sinais');
     sinais.innerHTML = d.sinais.map(s => `<li role="checkbox" aria-checked="false" tabindex="0">${Util.escapar(s)}</li>`).join('');
     const res = document.createElement('p');

@@ -28,7 +28,60 @@ public final class ConteudoService {
         destaques.add(dado("80 mi", "de pessoas",
                 "no mundo vivem com transtorno do jogo. Entre quem joga cassino online e slots, a taxa chega a cerca de 16%.",
                 "The Lancet Public Health Commission on Gambling, 2024"));
+        destaques.add(dado("10,9 mi", "de brasileiros",
+                "apostam com prejuízo pessoal, profissional ou financeiro — 7,3% de toda a população a partir de 14 anos.",
+                "III LENAD — Unifesp"));
+        destaques.add(dado("1,4 mi", "de pessoas",
+                "já preenchem os critérios clínicos do transtorno do jogo, uma doença reconhecida pela OMS.",
+                "III LENAD — Unifesp"));
+        destaques.add(dado("66,8%", "de quem usa bets",
+                "apresenta jogo de risco ou problemático. Entre quem aposta só em modalidades físicas, são 26,8%.",
+                "III LENAD — Unifesp"));
+        destaques.add(dado("55,2%", "dos adolescentes",
+                "de 14 a 17 anos que apostam já estão na zona de risco. Mesmo proibido, 1,4 milhão de menores apostaram no último ano.",
+                "III LENAD — Unifesp"));
+        destaques.add(dado("R$ 62,5 bi", "em 2025",
+                "saíram do bolso das famílias brasileiras e ficaram com as plataformas de apostas.",
+                "Comsefaz, via AMB"));
+        destaques.add(dado("R$ 17 bi", "por ano",
+                "é o custo social das mortes por suicídio ligadas às apostas, dentro de um prejuízo total de R$ 38,8 bilhões.",
+                "IEPS, Umane e FPSM, via AMB"));
+        destaques.add(dado("4 pessoas", "adoecem junto",
+                "para cada pessoa com problema de jogo, outras quatro passam a ter problemas de saúde: família, parceiros, filhos.",
+                "Associação Médica Brasileira (AMB)"));
+        destaques.add(dado("+104%", "no SUS",
+                "de alta nos atendimentos por jogo patológico: foram 10.553 entre janeiro de 2018 e maio de 2025.",
+                "Ministério da Saúde, via AMB"));
         out.put("destaques", destaques);
+
+        // Proporção de apostadores com jogo de risco ou problemático, por grupo (III LENAD).
+        List<Object> risco = new ArrayList<>();
+        risco.add(barra("Usuários de bets", 66.8, "Contra 26,8% entre quem aposta só em modalidades físicas."));
+        risco.add(barra("Adolescentes (14–17)", 55.2, "Apostar é proibido para menores, mas 1,4 milhão de adolescentes apostaram no último ano."));
+        risco.add(barra("Renda até 1 salário", 52.8, "Quem tem menos é quem mais adoece: o vício leva o dinheiro que falta em casa."));
+        risco.add(barra("Região Nordeste", 52.3, "Só 16,3% dos nordestinos apostam, mas metade deles já está em risco."));
+        risco.add(barra("Região Norte", 46.2, "Segunda região com maior proporção de jogadores em risco."));
+        risco.add(barra("Média de quem aposta", 38.6, "Quase 4 em cada 10 pessoas que apostaram no último ano já mostram sinais de risco."));
+        risco.add(barra("Renda acima de 2 salários", 21.1, "Mesmo entre quem ganha mais, 1 em cada 5 apostadores está em risco."));
+        out.put("riscoPorGrupo", risco);
+
+        // Prejuízo social anual, em bilhões de reais (IEPS/Umane/FPSM).
+        List<Object> custo = new ArrayList<>();
+        custo.add(barra("Mortes por suicídio", 17, "Vidas perdidas para o desespero causado pelas dívidas e pela compulsão."));
+        custo.add(barra("Depressão e qualidade de vida", 10.4, "Anos de vida com depressão, ansiedade e sofrimento."));
+        custo.add(barra("Tratamento médico", 3, "Custo de consultas, internações e acompanhamento no sistema de saúde."));
+        out.put("custoSocial", custo);
+
+        List<Object> danos = List.of(
+                "Depressão, ansiedade e estresse crônico",
+                "Risco elevado de suicídio",
+                "Dívidas, empréstimos e venda de bens para continuar apostando",
+                "Culpa, vergonha, humilhação e mentiras para esconder o jogo",
+                "Isolamento social e conflitos dentro de casa",
+                "Noites sem dormir e queda no rendimento nos estudos e no trabalho",
+                "Falta de comida em casa: a renda da família vai para as apostas",
+                "Perda de controle: apostar cada vez mais para recuperar o que perdeu");
+        out.put("danos", danos);
 
         // Quanto volta, em média, a cada R$ 100 apostados (valores típicos de mercado).
         List<Object> retorno = new ArrayList<>();
