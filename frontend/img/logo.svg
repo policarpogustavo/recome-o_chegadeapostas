@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9edfa0"/>
+      <stop offset=".55" stop-color="#5cc3a4"/>
+      <stop offset="1" stop-color="#2e9e98"/>
+    </linearGradient>
+    <linearGradient id="f" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#9edfa0" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#5cc3a4" stop-opacity=".12"/>
+    </linearGradient>
+  </defs>
+  <g fill="none" stroke="url(#g)" stroke-linecap="round" stroke-linejoin="round">
+    <!-- arco que abraça a muda -->
+    <path d="M14.5 17.5A23 23 0 1 0 54 42" stroke-width="2.3"/>
+    <!-- caule -->
+    <path d="M24 55.5C36 51 37 40 33 31.5" stroke-width="3.6"/>
+    <path d="M28.5 55.8C38.5 50 39 41 35 33" stroke-width="1.6" opacity=".7"/>
+    <!-- folha esquerda -->
+    <path d="M33 31.5C22 31 15 21.5 16.5 9.5C27.5 11 34 19.5 33 31.5Z" fill="url(#f)" stroke-width="2.6" stroke-linejoin="miter" stroke-miterlimit="8"/>
+    <path d="M32 29C28 23 24 18.5 19.5 14" stroke-width="1.4" opacity=".8"/>
+    <!-- folha direita -->
+    <path d="M34 31C34.5 20 41 12 51.5 9.5C52.5 21 45 29.5 34 31Z" fill="url(#f)" stroke-width="2.6" stroke-linejoin="miter" stroke-miterlimit="8"/>
+    <path d="M35 28.5C39 22 43 17.5 48 13.5" stroke-width="1.4" opacity=".8"/>
+  </g>
+</svg>

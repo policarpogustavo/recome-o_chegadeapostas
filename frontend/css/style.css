@@ -22,6 +22,7 @@
   --ok: #15803d;
   --ok-suave: #dcf3e2;
   --barra: #0f6b5c;
+  --marca: #1a5d6b;
   --sombra: 0 1px 2px rgb(20 40 30 / .06), 0 8px 24px rgb(20 40 30 / .07);
   --sombra-forte: 0 18px 50px rgb(20 40 30 / .16);
   --raio: 18px;
@@ -51,6 +52,8 @@
     --ok: #4ade80;
     --ok-suave: #15301f;
     --barra: #3cbfa4;
+  --marca: #e3f1ee;
+    --marca: #e3f1ee;
     --sombra: 0 1px 2px rgb(0 0 0 / .3), 0 8px 24px rgb(0 0 0 / .25);
     --sombra-forte: 0 18px 50px rgb(0 0 0 / .5);
   }
@@ -142,8 +145,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 }
 .topo.rolado { border-color: var(--borda); box-shadow: 0 4px 20px rgb(0 0 0 / .05); }
 .topo__inner { display: flex; align-items: center; gap: 24px; height: 68px; }
-.marca { display: flex; align-items: center; gap: 10px; font-family: var(--fonte-titulo); font-size: 1.35rem; font-weight: 700; color: var(--texto); text-decoration: none; }
-.marca svg { width: 32px; height: 32px; }
+.marca { display: flex; align-items: center; gap: 10px; font-family: var(--fonte-titulo); font-size: 1.45rem; font-weight: 700; letter-spacing: -.01em; color: var(--marca); text-decoration: none; }
+.marca img { width: 40px; height: 40px; }
 .menu { display: flex; gap: 4px; margin-left: auto; }
 .menu a { padding: 8px 10px; border-radius: 999px; color: var(--texto-2); text-decoration: none; font-weight: 500; font-size: .93rem; transition: background .2s, color .2s; }
 .menu a:hover, .menu a.ativo { background: var(--primaria-suave); color: var(--primaria-forte); }
