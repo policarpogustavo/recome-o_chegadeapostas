@@ -54,12 +54,14 @@
       const el = en.target;
       const alvo = Number(el.dataset.contar);
       const prefixo = el.dataset.prefixo || '';
+      const sufixo = el.dataset.sufixo || '';
+      const casas = Number(el.dataset.casas || 0);
       const inicio = performance.now();
       const dur = 1800;
       const passo = agora => {
         const t = Math.min(1, (agora - inicio) / dur);
-        const v = Math.round(alvo * (1 - Math.pow(1 - t, 3)));
-        el.textContent = prefixo + Util.numero(v);
+        const v = alvo * (1 - Math.pow(1 - t, 3));
+        el.textContent = prefixo + Util.numero(v, casas) + sufixo;
         if (t < 1) requestAnimationFrame(passo);
       };
       requestAnimationFrame(passo);

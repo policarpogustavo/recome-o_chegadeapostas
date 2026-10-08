@@ -127,6 +127,14 @@
       document.getElementById('statsTitulo').textContent = 'Suas avaliações';
       document.getElementById('statsSub').textContent = 'Nesta versão online, os resultados ficam só no seu aparelho — ninguém mais vê.';
     }
+    const graficos = document.querySelector('.stats-graficos');
+    if (!s.total) {
+      document.getElementById('statsTiles').innerHTML =
+        '<p class="stats-vazio">Ainda não há avaliações por aqui. <a href="#avaliacao">Faça a sua avaliação</a> — leva 3 minutos e o resultado aparece neste painel.</p>';
+      graficos.style.display = 'none';
+      return;
+    }
+    graficos.style.display = '';
     const tiles = [
       [Util.numero(s.total), 'avaliações feitas'],
       [`${Util.numero(s.percentQueremAjuda)}%`, 'querem ajuda para parar'],
