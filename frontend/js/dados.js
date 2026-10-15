@@ -128,6 +128,13 @@
       document.getElementById('statsSub').textContent = 'Nesta versão online, os resultados ficam só no seu aparelho. Ninguém mais tem acesso a eles.';
     }
     const graficos = document.querySelector('.stats-graficos');
+    if (s.total && s.suficiente === false) {
+      // Com poucas avaliações, médias e porcentagens revelariam as respostas de alguém.
+      document.getElementById('statsTiles').innerHTML =
+        `<p class="stats-vazio">${Util.numero(s.total)} avaliação(ões) até agora. Para proteger quem respondeu, os números aparecem a partir de 5 avaliações. <a href="#avaliacao">Faça a sua avaliação</a>.</p>`;
+      graficos.style.display = 'none';
+      return;
+    }
     if (!s.total) {
       document.getElementById('statsTiles').innerHTML =
         '<p class="stats-vazio">Ainda não há avaliações por aqui. <a href="#avaliacao">Faça a sua avaliação</a>: leva 3 minutos, e o resultado aparece neste painel.</p>';

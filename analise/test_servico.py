@@ -1,11 +1,12 @@
 """Testes do serviço de análise. Rode com: python -m unittest discover analise"""
 
 import json
-import tempfile
+import threading
 import unittest
-from pathlib import Path
+import urllib.request
+from http.server import ThreadingHTTPServer
 
-from servico import Avaliacoes, moderar, percentil, resumo
+from servico import criar_handler, moderar, percentil, resumo
 
 
 def avaliacao(score, nivel, faixa="25-34", dia=(), data="2026-10-01T12:00:00Z", gasto=300):
@@ -49,25 +50,75 @@ class AnaliseTest(unittest.TestCase):
         self.assertEqual(r["percentil"], 95)
 
     def test_resumo_por_faixa_e_sinais(self):
-        regs = [
-            avaliacao(10, "problematico", "18-24", ["recuperar_perdas", "mente"]),
-            avaliacao(5, "moderado", "18-24", ["recuperar_perdas"]),
-            avaliacao(0, "sem_risco", "45-59"),
-        ]
+        regs = (
+            [avaliacao(10, "problematico", "18-24", ["recuperar_perdas", "mente"]) for _ in range(3)]
+            + [avaliacao(5, "moderado", "18-24", ["recuperar_perdas"]) for _ in range(2)]
+            + [avaliacao(0, "sem_risco", "45-59") for _ in range(5)]
+        )
         r = resumo(regs)
-        self.assertEqual(r["total"], 3)
+        self.assertTrue(r["suficiente"])
+        self.assertEqual(r["total"], 10)
         faixa = next(f for f in r["porFaixa"] if f["faixa"] == "18-24")
         self.assertEqual(faixa["percentRisco"], 100.0)
         self.assertEqual(r["sinaisNoRisco"][0]["sinal"], "recuperar_perdas")
         self.assertEqual(r["sinaisNoRisco"][0]["percent"], 100.0)
-        self.assertEqual(r["gastoAnualComunidade"], 300 * 3 * 12)
+        self.assertEqual(r["gastoAnualComunidade"], 300 * 10 * 12)
 
-    def test_le_arquivo_e_ignora_linhas_quebradas(self):
-        with tempfile.TemporaryDirectory() as pasta:
-            arq = Path(pasta) / "avaliacoes.jsonl"
-            arq.write_text(json.dumps(avaliacao(4, "moderado")) + "\n{quebrada\n", encoding="utf-8")
-            self.assertEqual(len(Avaliacoes(arq).todas()), 1)
-            self.assertEqual(Avaliacoes(Path(pasta) / "nao-existe.jsonl").todas(), [])
+    def test_resumo_esconde_grupos_pequenos(self):
+        # Com 1 pessoa na faixa 60+, a média dela seria a pontuação dela: não pode aparecer.
+        regs = [avaliacao(2, "baixo", "25-34") for _ in range(5)] + [avaliacao(20, "problematico", "60+", ["mente"])]
+        r = resumo(regs)
+        self.assertEqual([f["faixa"] for f in r["porFaixa"]], ["25-34"])
+        self.assertEqual(r["sinaisNoRisco"], [])
+
+    def test_resumo_com_poucas_avaliacoes(self):
+        r = resumo([avaliacao(7, "moderado")])
+        self.assertFalse(r["suficiente"])
+        self.assertEqual(r["porFaixa"], [])
+
+
+class HttpTest(unittest.TestCase):
+    """Sobe o serviço numa porta livre e chama as rotas como o Java faz."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.servidor = ThreadingHTTPServer(("127.0.0.1", 0), criar_handler())
+        cls.base = f"http://127.0.0.1:{cls.servidor.server_address[1]}"
+        threading.Thread(target=cls.servidor.serve_forever, daemon=True).start()
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.servidor.shutdown()
+        cls.servidor.server_close()
+
+    def post(self, rota, corpo):
+        req = urllib.request.Request(self.base + rota, data=json.dumps(corpo).encode(),
+                                     headers={"Content-Type": "application/json"})
+        try:
+            with urllib.request.urlopen(req) as res:
+                return res.status, json.loads(res.read())
+        except urllib.error.HTTPError as e:
+            with e:
+                return e.code, json.loads(e.read())
+
+    def test_saude(self):
+        with urllib.request.urlopen(self.base + "/saude") as res:
+            self.assertEqual(json.loads(res.read()), {"ok": True})
+
+    def test_resumo_e_percentil_recebem_as_avaliacoes(self):
+        regs = [avaliacao(s, "baixo") for s in range(10)]
+        status, r = self.post("/resumo", {"avaliacoes": regs})
+        self.assertEqual((status, r["total"]), (200, 10))
+        status, r = self.post("/percentil", {"avaliacoes": regs, "score": 9})
+        self.assertEqual((status, r["percentil"]), (200, 95))
+
+    def test_percentil_valida_pontuacao(self):
+        for score in (28, -1, "5", True, None):
+            self.assertEqual(self.post("/percentil", {"avaliacoes": [], "score": score})[0], 400, score)
+
+    def test_ignora_lixo_na_lista(self):
+        status, r = self.post("/resumo", {"avaliacoes": [1, "x", None]})
+        self.assertEqual((status, r["total"]), (200, 0))
 
 
 if __name__ == "__main__":

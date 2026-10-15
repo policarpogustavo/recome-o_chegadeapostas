@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- O GitHub Pages não envia cabeçalhos de segurança; esta política vale como um. connect-src lista a API (ver js/config.js). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://recomeco-api.onrender.com http://localhost:8080 http://127.0.0.1:8080; base-uri 'self'; form-action 'self'">
+  <meta name="referrer" content="no-referrer">
   <title>Recomeço | Apoio para sair do vício em apostas</title>
   <meta name="description" content="Recomeço: avaliação gratuita, informação, jogos sem apostas e apoio para quem quer se livrar do vício em bets e cassinos online.">
   <link rel="icon" href="img/logo.svg" type="image/svg+xml">
@@ -16,6 +19,12 @@
 </head>
 <body>
   <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+
+  <div class="conexao" id="conexao" role="status" hidden>
+    <span class="conexao__icone" aria-hidden="true"></span>
+    <p id="conexaoTexto"></p>
+    <button class="btn btn--peq btn--fantasma" id="conexaoTentar" hidden>Tentar de novo</button>
+  </div>
 
   <!-- ============================== CABEÇALHO ============================== -->
   <header class="topo" id="topo">
@@ -878,7 +887,7 @@
         <p class="conta-form__erro" id="contaErro" role="alert"></p>
         <button class="btn btn--primario" type="submit" id="contaEnviar">Entrar</button>
       </form>
-      <p class="conta-aviso" id="contaOffline" hidden>Nesta versão do site, que funciona sem servidor, as contas não estão disponíveis. Os seus dados ficam salvos apenas neste aparelho.</p>
+      <p class="conta-aviso" id="contaOffline" hidden>Não foi possível conectar ao servidor agora, então as contas estão indisponíveis por enquanto. Enquanto isso, os seus dados ficam salvos apenas neste aparelho. Tente de novo em alguns minutos recarregando a página.</p>
     </div>
     <div id="contaLogado" hidden>
       <h2>Olá, <span id="contaOla"></span>!</h2>
@@ -889,12 +898,33 @@
         <button class="btn btn--fantasma" id="contaSair">Sair da conta</button>
       </div>
       <p class="painel__sub">Ao sair, os dados pessoais são apagados deste aparelho, mas continuam guardados na sua conta.</p>
+
+      <div class="conta-lgpd">
+        <h3>Seus dados</h3>
+        <p class="painel__sub">Você pode baixar tudo o que o Recomeço guarda sobre você ou apagar a sua conta quando quiser.</p>
+        <div class="conta-acoes">
+          <button class="btn btn--secundario btn--peq" id="contaExportar">Baixar meus dados</button>
+          <button class="btn btn--fantasma btn--peq" id="contaApagarAbrir">Apagar minha conta</button>
+        </div>
+        <form class="conta-form conta-apagar" id="formApagar" hidden novalidate>
+          <p>Isto apaga para sempre a sua conta, a sua jornada, o seu diário, os seus recordes e as suas avaliações. Não dá para desfazer. As mensagens do mural são anônimas, não ficam ligadas à conta e por isso continuam lá.</p>
+          <label>Digite a sua senha para confirmar
+            <input type="password" id="apagarSenha" autocomplete="current-password" maxlength="128" required>
+          </label>
+          <p class="conta-form__erro" id="apagarErro" role="alert"></p>
+          <div class="conta-acoes">
+            <button class="btn btn--perigo" type="submit" id="apagarEnviar">Apagar tudo para sempre</button>
+            <button class="btn btn--fantasma" type="button" id="apagarCancelar">Cancelar</button>
+          </div>
+        </form>
+      </div>
     </div>
   </dialog>
 
   <div class="toast" id="toast" role="status" hidden></div>
   <canvas class="confete" id="confete" aria-hidden="true"></canvas>
 
+  <script src="js/config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/offline.js"></script>
   <script src="js/conta.js"></script>

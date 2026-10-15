@@ -107,6 +107,32 @@ public final class AvaliacaoService {
         return out;
     }
 
+    /**
+     * Só os campos que o serviço de análise (Python) precisa, sem hash de IP,
+     * id da avaliação nem id da conta.
+     */
+    public List<Map<String, Object>> anonimas() {
+        List<Map<String, Object>> out = new ArrayList<>();
+        for (Map<String, Object> a : storage.all()) {
+            Map<String, Object> m = new LinkedHashMap<>();
+            for (String campo : List.of("faixaEtaria", "score", "nivel", "data", "diaADia", "gastoMensal")) {
+                m.put(campo, a.get(campo));
+            }
+            out.add(m);
+        }
+        return out;
+    }
+
+    /** Todas as avaliações ligadas à conta, com todas as respostas (exportação de dados). */
+    public List<Map<String, Object>> doUsuario(String usuarioId) {
+        return storage.all().stream().filter(a -> usuarioId.equals(a.get("usuarioId"))).toList();
+    }
+
+    /** Apaga as avaliações ligadas à conta (exclusão de conta). */
+    public int removerDoUsuario(String usuarioId) throws IOException {
+        return storage.remover(a -> usuarioId.equals(a.get("usuarioId")));
+    }
+
     // ------------------------------------------------------------------ validação
 
     private Map<String, Object> validar(Map<String, Object> in) {
@@ -274,10 +300,17 @@ public final class AvaliacaoService {
 
     // ------------------------------------------------------------------ estatísticas
 
+    /**
+     * Com menos avaliações que isso, médias e distribuições revelariam as respostas
+     * de uma pessoa específica; nesse caso só o total é divulgado.
+     */
+    static final int MINIMO_PARA_AGREGAR = 5;
+
     /** Agregados anônimos de todas as avaliações, usados no painel "Nossa comunidade". */
     @SuppressWarnings("unchecked")
     public Map<String, Object> estatisticas() {
         List<Map<String, Object>> all = storage.all();
+        if (all.size() < MINIMO_PARA_AGREGAR) return Map.of("total", all.size(), "suficiente", false);
         Map<String, Integer> porTipo = new TreeMap<>();
         Map<String, Integer> porOrigem = new TreeMap<>();
         Map<String, Integer> porTempo = new TreeMap<>();
@@ -307,6 +340,7 @@ public final class AvaliacaoService {
         int n = all.size();
         Map<String, Object> out = new LinkedHashMap<>();
         out.put("total", n);
+        out.put("suficiente", true);
         out.put("mediaScore", n == 0 ? 0 : somaScore / n);
         out.put("mediaGastoMensal", n == 0 ? 0 : somaGasto / n);
         out.put("mediaArrependimento", n == 0 ? 0 : somaArrep / n);

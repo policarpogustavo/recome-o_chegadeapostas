@@ -1,36 +1,123 @@
 /* Utilitários compartilhados: chamadas à API, formatação, armazenamento local, sons e confete. */
 const Api = {
-  // Sem o servidor Java (ex.: GitHub Pages), usa a versão local da API em offline.js.
-  semServidor: location.hostname.endsWith('github.io') || location.protocol === 'file:',
+  base: Config.apiBase,
+  // Sem servidor (arquivo local ou servidor que não respondeu), usa a versão local da API em offline.js.
+  semServidor: Config.apiBase === null,
+  /** 'conectando', 'online' ou 'offline'. */
+  estado: Config.apiBase === null ? 'offline' : 'conectando',
+  _conexao: null,
+
+  // Conteúdo fixo, igual no servidor e em offline.js: aparece na hora, sem esperar o servidor acordar.
+  IMEDIATAS: new Set(['GET dados', 'GET quiz', 'GET motivacao']),
+
+  // ---------- sessão: o token fica neste aparelho e vai no header Authorization ----------
+  token() {
+    try { return localStorage.getItem('recomeco-token'); } catch { return null; }
+  },
+  definirToken(token) {
+    try {
+      if (token) localStorage.setItem('recomeco-token', token);
+      else localStorage.removeItem('recomeco-token');
+    } catch { /* armazenamento indisponível: a sessão dura só esta página */ }
+  },
+
+  /**
+   * Espera o servidor responder. O Render gratuito dorme depois de 15 minutos sem acesso
+   * e leva cerca de um minuto para acordar; só depois de Config.esperaMaximaMs sem
+   * resposta o site passa para o modo offline. Devolve true se conectou.
+   */
+  conectar() {
+    if (this._conexao) return this._conexao;
+    if (this.semServidor) return (this._conexao = Promise.resolve(false));
+    this._conexao = (async () => {
+      const inicio = Date.now();
+      const aviso = setTimeout(() => Conexao.mostrar('conectando'), Config.avisoAposMs);
+      for (let tentativa = 0; Date.now() - inicio < Config.esperaMaximaMs; tentativa++) {
+        try {
+          const restante = Config.esperaMaximaMs - (Date.now() - inicio);
+          const res = await fetch(`${this.base}/api/saude`, { cache: 'no-store', signal: AbortSignal.timeout(Math.min(30_000, restante)) });
+          // Qualquer resposta JSON da API mostra que o servidor acordou (mesmo um 503 do banco).
+          if ((res.headers.get('Content-Type') || '').includes('application/json')) {
+            clearTimeout(aviso);
+            this.estado = 'online';
+            Conexao.mostrar('online');
+            return true;
+          }
+        } catch { /* ainda acordando ou sem internet */ }
+        await new Promise(r => setTimeout(r, Math.min(2000 + tentativa * 1000, 5000)));
+      }
+      clearTimeout(aviso);
+      this.estado = 'offline';
+      this.semServidor = true;
+      Conexao.mostrar('offline');
+      return false;
+    })();
+    return this._conexao;
+  },
 
   async chamar(metodo, rota, dados) {
-    if (!this.semServidor) {
-      let res;
-      try {
-        res = await fetch(`/api/${rota}`, metodo === 'GET' ? { credentials: 'same-origin' } : {
-          method: metodo,
-          credentials: 'same-origin',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(dados ?? {}),
-        });
-      } catch { res = null; }
-      if (res && (res.headers.get('Content-Type') || '').includes('application/json')) {
-        const corpo = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          const erro = new Error(corpo.erro || `Erro ${res.status}`);
-          erro.status = res.status;
-          throw erro;
-        }
-        return corpo;
-      }
-      this.semServidor = true;
+    if (this.estado === 'conectando' && this.IMEDIATAS.has(`${metodo} ${rota}`)) return ApiLocal.chamar(metodo, rota, dados);
+    if (!(await this.conectar())) return ApiLocal.chamar(metodo, rota, dados);
+
+    const headers = {};
+    const token = this.token();
+    if (token) headers.Authorization = `Bearer ${token}`;
+    if (metodo !== 'GET') headers['Content-Type'] = 'application/json';
+    let res;
+    try {
+      res = await fetch(`${this.base}/api/${rota}`, {
+        method: metodo,
+        headers,
+        body: metodo === 'GET' ? undefined : JSON.stringify(dados ?? {}),
+        credentials: 'omit',
+        cache: 'no-store',
+      });
+    } catch {
+      // Já conectado: uma falha agora é passageira. Não troca para o modo offline,
+      // para que nada seja salvo só no aparelho sem a pessoa perceber.
+      const erro = new Error('Não foi possível falar com o servidor. Verifique a sua internet e tente de novo.');
+      erro.status = 0;
+      throw erro;
     }
-    return ApiLocal.chamar(metodo, rota, dados);
+    const corpo = (res.headers.get('Content-Type') || '').includes('application/json')
+      ? await res.json().catch(() => ({})) : {};
+    if (!res.ok) {
+      const erro = new Error(corpo.erro || `Erro ${res.status}`);
+      erro.status = res.status;
+      throw erro;
+    }
+    return corpo;
   },
   get(rota) { return this.chamar('GET', rota); },
   post(rota, dados) { return this.chamar('POST', rota, dados); },
   put(rota, dados) { return this.chamar('PUT', rota, dados); },
+  apagar(rota, dados) { return this.chamar('DELETE', rota, dados); },
 };
+
+/* Faixa no topo da página que mostra o estado da conexão com o servidor. */
+const Conexao = {
+  mostrar(estado) {
+    const el = document.getElementById('conexao');
+    if (!el) return;
+    const texto = document.getElementById('conexaoTexto');
+    const botao = document.getElementById('conexaoTentar');
+    el.dataset.estado = estado;
+    if (estado === 'online') {
+      el.hidden = true;
+      return;
+    }
+    if (estado === 'conectando') {
+      texto.textContent = 'Conectando ao servidor… Se ninguém acessou o site nos últimos minutos, isso pode levar até um minuto. Enquanto isso, você já pode navegar.';
+      botao.hidden = true;
+    } else {
+      texto.textContent = 'Não foi possível conectar ao servidor agora. O site continua funcionando, mas as contas ficam indisponíveis e os seus dados ficam salvos só neste aparelho.';
+      botao.hidden = false;
+    }
+    el.hidden = false;
+  },
+};
+document.getElementById('conexaoTentar')?.addEventListener('click', () => location.reload());
+Api.conectar();
 
 const Util = {
   moeda(v, casas = 0) {

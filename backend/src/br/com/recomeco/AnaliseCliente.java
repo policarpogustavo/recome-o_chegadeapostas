@@ -33,6 +33,16 @@ public final class AnaliseCliente {
     }
 
     /**
+     * POST com um corpo JSON; null se o serviço não responder. É assim que as avaliações
+     * chegam ao Python, que não tem acesso ao banco.
+     */
+    public Resposta post(String caminho, Object corpo) {
+        return enviar(HttpRequest.newBuilder(URI.create(base + caminho))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(Json.stringify(corpo), StandardCharsets.UTF_8)));
+    }
+
+    /**
      * Pede ao Python que revise um texto do mural. Devolve o motivo da recusa,
      * "" se o texto foi aprovado ou null se o serviço não está disponível.
      */
@@ -52,7 +62,7 @@ public final class AnaliseCliente {
 
     private Resposta enviar(HttpRequest.Builder req) {
         try {
-            HttpResponse<String> res = http.send(req.timeout(Duration.ofSeconds(2)).build(),
+            HttpResponse<String> res = http.send(req.timeout(Duration.ofSeconds(5)).build(),
                     HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             return new Resposta(res.statusCode(), res.body());
         } catch (Exception e) {

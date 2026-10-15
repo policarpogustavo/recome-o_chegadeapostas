@@ -21,12 +21,17 @@ import java.util.regex.Pattern;
 /**
  * Contas anônimas (só apelido e senha, sem e-mail), sessões e os dados da
  * jornada de cada pessoa, para que ela continue de onde parou em qualquer aparelho.
- * Senhas são guardadas com PBKDF2 e sal aleatório; sessões, apenas pelo hash do token.
+ * Senhas são guardadas com PBKDF2-HMAC-SHA512 e sal aleatório; sessões, apenas pelo
+ * hash do token, que o navegador envia no header Authorization.
  */
 public final class UsuarioService {
 
     public static final Duration DURACAO_SESSAO = Duration.ofDays(30);
+    /** OWASP: 210 mil iterações para PBKDF2-HMAC-SHA512. */
+    private static final String ALGORITMO = "PBKDF2WithHmacSHA512";
     private static final int ITERACOES = 210_000;
+    /** Contas criadas antes da troca de algoritmo não têm o campo "algoritmo". */
+    private static final String ALGORITMO_ANTIGO = "PBKDF2WithHmacSHA256";
     private static final Pattern USUARIO = Pattern.compile("[a-z0-9_.]{3,24}");
     private static final List<String> CHAVES_SINCRONIZADAS = List.of(
             "jornada", "diario", "vontadesVencidas", "recordes");
@@ -41,10 +46,10 @@ public final class UsuarioService {
         this.usuarios = usuarios;
         this.sessoes = sessoes;
         this.dados = dados;
-        sessoes.remover(s -> Instant.parse((String) s.get("expira")).isBefore(Instant.now()));
+        limparSessoes();
     }
 
-    /** Resultado de cadastro ou login: o token vai para o cookie, o resto para o corpo. */
+    /** Resultado de cadastro ou login: o token só existe aqui e no aparelho da pessoa. */
     public record Sessao(String token, Map<String, Object> usuario) {}
 
     // ------------------------------------------------------------------ cadastro e login
@@ -56,14 +61,10 @@ public final class UsuarioService {
             throw new ValidacaoException("O apelido deve ter de 3 a 24 caracteres: letras, números, ponto ou sublinhado.");
         if (buscar(usuario) != null) throw new ValidacaoException("Esse apelido já está em uso. Escolha outro.");
 
-        byte[] sal = new byte[16];
-        random.nextBytes(sal);
         Map<String, Object> u = new LinkedHashMap<>();
         u.put("id", UUID.randomUUID().toString());
         u.put("usuario", usuario);
-        u.put("sal", Base64.getEncoder().encodeToString(sal));
-        u.put("iteracoes", ITERACOES);
-        u.put("hash", Base64.getEncoder().encodeToString(pbkdf2(senha, sal, ITERACOES)));
+        u.putAll(novoHash(senha));
         u.put("criadoEm", Instant.now().toString());
         usuarios.append(u);
         return abrirSessao(u);
@@ -73,12 +74,17 @@ public final class UsuarioService {
         String usuario = normalizar(in.get("usuario"));
         String senha = in.get("senha") instanceof String s ? s : "";
         Map<String, Object> u = buscar(usuario);
-        // Calcula o hash mesmo quando o apelido não existe, para não revelar quais apelidos existem pelo tempo de resposta.
-        byte[] sal = u == null ? new byte[16] : Base64.getDecoder().decode((String) u.get("sal"));
-        int iteracoes = u == null ? ITERACOES : ((Number) u.get("iteracoes")).intValue();
-        byte[] calculado = pbkdf2(senha, sal, iteracoes);
-        if (u == null || !MessageDigest.isEqual(calculado, Base64.getDecoder().decode((String) u.get("hash"))))
-            throw new ValidacaoException("Apelido ou senha incorretos.");
+        if (!senhaConfere(u, senha)) throw new ValidacaoException("Apelido ou senha incorretos.");
+        // Contas no formato antigo ganham o hash novo agora, enquanto a senha está disponível.
+        if (!ALGORITMO.equals(u.get("algoritmo")) || ((Number) u.get("iteracoes")).intValue() != ITERACOES) {
+            Map<String, Object> hash = novoHash(senha);
+            Object id = u.get("id");
+            usuarios.atualizar(x -> id.equals(x.get("id")), x -> {
+                Map<String, Object> novo = new LinkedHashMap<>(x);
+                novo.putAll(hash);
+                return novo;
+            });
+        }
         return abrirSessao(u);
     }
 
@@ -98,12 +104,51 @@ public final class UsuarioService {
         return usuarios.ultimo(u -> id.equals(u.get("id")));
     }
 
+    /** Remove as sessões vencidas (na inicialização e de hora em hora). */
+    public void limparSessoes() throws IOException {
+        Instant agora = Instant.now();
+        sessoes.remover(s -> Instant.parse((String) s.get("expira")).isBefore(agora));
+    }
+
     public static Map<String, Object> publico(Map<String, Object> u) {
         Map<String, Object> m = new LinkedHashMap<>();
         m.put("id", u.get("id"));
         m.put("usuario", u.get("usuario"));
         m.put("criadoEm", u.get("criadoEm"));
         return m;
+    }
+
+    // ------------------------------------------------------------------ direitos do titular (LGPD, art. 18)
+
+    /** Tudo o que o servidor guarda sobre a conta, exceto o hash da senha e o dos tokens. */
+    public Map<String, Object> exportar(Map<String, Object> u) {
+        Object id = u.get("id");
+        Map<String, Object> out = new LinkedHashMap<>();
+        out.put("conta", publico(u));
+        Map<String, Object> d = dados.ultimo(x -> id.equals(x.get("usuarioId")));
+        out.put("dadosDaJornada", d == null ? null : d.get("dados"));
+        out.put("dadosAtualizadosEm", d == null ? null : d.get("atualizadoEm"));
+        out.put("sessoesAtivas", sessoes.all().stream()
+                .filter(s -> id.equals(s.get("usuarioId")))
+                .map(s -> {
+                    Map<String, Object> m = new LinkedHashMap<>();
+                    m.put("criadaEm", s.get("criadaEm"));
+                    m.put("expira", s.get("expira"));
+                    return m;
+                }).toList());
+        return out;
+    }
+
+    /** Apaga a conta e tudo o que está ligado a ela. Pede a senha de novo para confirmar. */
+    public void apagarConta(Map<String, Object> u, Map<String, Object> in, AvaliacaoService avaliacoes) throws IOException {
+        String senha = in.get("senha") instanceof String s ? s : "";
+        if (!senhaConfere(u, senha)) throw new ValidacaoException("Senha incorreta.");
+        String id = (String) u.get("id");
+        // Primeiro o que depende da conta, por último a conta: se algo falhar no meio, dá para repetir.
+        avaliacoes.removerDoUsuario(id);
+        dados.remover(x -> id.equals(x.get("usuarioId")));
+        sessoes.remover(x -> id.equals(x.get("usuarioId")));
+        usuarios.remover(x -> id.equals(x.get("id")));
     }
 
     // ------------------------------------------------------------------ dados da jornada
@@ -144,10 +189,12 @@ public final class UsuarioService {
         byte[] bytes = new byte[32];
         random.nextBytes(bytes);
         String token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        Instant agora = Instant.now();
         Map<String, Object> s = new LinkedHashMap<>();
         s.put("token", hashToken(token));
         s.put("usuarioId", u.get("id"));
-        s.put("expira", Instant.now().plus(DURACAO_SESSAO).toString());
+        s.put("criadaEm", agora.toString());
+        s.put("expira", agora.plus(DURACAO_SESSAO).toString());
         sessoes.append(s);
         return new Sessao(token, publico(u));
     }
@@ -166,10 +213,37 @@ public final class UsuarioService {
         return s;
     }
 
-    private static byte[] pbkdf2(String senha, byte[] sal, int iteracoes) {
+    private Map<String, Object> novoHash(String senha) {
+        byte[] sal = new byte[16];
+        random.nextBytes(sal);
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("algoritmo", ALGORITMO);
+        m.put("sal", Base64.getEncoder().encodeToString(sal));
+        m.put("iteracoes", ITERACOES);
+        m.put("hash", Base64.getEncoder().encodeToString(pbkdf2(ALGORITMO, senha, sal, ITERACOES, 512)));
+        return m;
+    }
+
+    /**
+     * Confere a senha. Calcula o hash mesmo quando a conta não existe, para não
+     * revelar quais apelidos existem pelo tempo de resposta.
+     */
+    private static boolean senhaConfere(Map<String, Object> u, String senha) {
+        if (u == null) {
+            pbkdf2(ALGORITMO, senha, new byte[16], ITERACOES, 512);
+            return false;
+        }
+        String algoritmo = u.get("algoritmo") instanceof String a ? a : ALGORITMO_ANTIGO;
+        byte[] esperado = Base64.getDecoder().decode((String) u.get("hash"));
+        byte[] sal = Base64.getDecoder().decode((String) u.get("sal"));
+        int iteracoes = ((Number) u.get("iteracoes")).intValue();
+        return MessageDigest.isEqual(pbkdf2(algoritmo, senha, sal, iteracoes, esperado.length * 8), esperado);
+    }
+
+    private static byte[] pbkdf2(String algoritmo, String senha, byte[] sal, int iteracoes, int bits) {
         try {
-            PBEKeySpec spec = new PBEKeySpec(senha.toCharArray(), sal, iteracoes, 256);
-            return SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256").generateSecret(spec).getEncoded();
+            PBEKeySpec spec = new PBEKeySpec(senha.toCharArray(), sal, iteracoes, bits);
+            return SecretKeyFactory.getInstance(algoritmo).generateSecret(spec).getEncoded();
         } catch (GeneralSecurityException e) {
             throw new IllegalStateException(e);
         }

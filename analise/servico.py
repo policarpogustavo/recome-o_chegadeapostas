@@ -1,19 +1,21 @@
 """
 Serviço de análise do Recomeço (Python, só biblioteca padrão).
 
-Roda ao lado do servidor Java, que repassa para cá as rotas /api/analise/*
-e pede a revisão das mensagens do mural. Lê os mesmos arquivos JSON Lines
-da pasta data/ (somente leitura).
+Roda ao lado do servidor Java, no mesmo container, ouvindo só em 127.0.0.1.
+O Java repassa para cá as rotas /api/analise/* e pede a revisão das mensagens
+do mural. Este serviço não acessa o banco: o Java envia, a cada pedido, só os
+campos anônimos das avaliações (faixa etária, pontuação, nível, data, sinais e
+gasto), sem hash de IP nem id de conta.
 
 Rotas:
-    GET  /saude                 verifica se o serviço está no ar
-    GET  /resumo                análise da comunidade (faixa etária, semanas, sinais)
-    GET  /percentil?score=N     compara uma pontuação com as demais avaliações
-    POST /moderar               revisa um texto do mural: {"texto": "..."}
+    GET  /saude          verifica se o serviço está no ar
+    POST /resumo         {"avaliacoes": [...]}: análise da comunidade
+    POST /percentil      {"avaliacoes": [...], "score": N}: compara uma pontuação com as demais
+    POST /moderar        {"texto": "..."}: revisa um texto do mural
 
 Uso:
-    python analise/servico.py [pasta_de_dados]
-    Porta: variável ANALISE_PORTA (padrão 8081).
+    python analise/servico.py
+    Variáveis: ANALISE_PORTA (padrão 8081) e ANALISE_HOST (padrão 127.0.0.1).
 """
 
 from __future__ import annotations
@@ -21,14 +23,11 @@ from __future__ import annotations
 import json
 import os
 import re
-import sys
-import threading
 import unicodedata
 from collections import Counter, defaultdict
 from datetime import date, datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from pathlib import Path
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import urlparse
 
 FAIXAS = ["menor", "18-24", "25-34", "35-44", "45-59", "60+"]
 ROTULO_FAIXA = {
@@ -48,42 +47,13 @@ ROTULO_SINAL = {
     "deixou_lazer": "Largou o lazer",
 }
 NIVEIS_RISCO = {"moderado", "problematico"}
-MAX_CORPO = 16 * 1024
+MAX_TEXTO = 16 * 1024
+MAX_AVALIACOES = 8 * 1024 * 1024
+# Grupos menores que isso não são mostrados: médias de 1 ou 2 pessoas revelariam as respostas delas.
+MINIMO_GRUPO = 5
 
 
 # --------------------------------------------------------------------------- dados
-
-class Avaliacoes:
-    """Lê data/avaliacoes.jsonl e só relê quando o arquivo muda."""
-
-    def __init__(self, arquivo: Path):
-        self.arquivo = arquivo
-        self._trava = threading.Lock()
-        self._assinatura = None
-        self._registros: list[dict] = []
-
-    def todas(self) -> list[dict]:
-        with self._trava:
-            try:
-                st = self.arquivo.stat()
-                assinatura = (st.st_mtime_ns, st.st_size)
-            except FileNotFoundError:
-                return []
-            if assinatura != self._assinatura:
-                registros = []
-                with self.arquivo.open(encoding="utf-8") as f:
-                    for linha in f:
-                        linha = linha.strip()
-                        if not linha:
-                            continue
-                        try:
-                            registros.append(json.loads(linha))
-                        except json.JSONDecodeError:
-                            continue
-                self._registros = registros
-                self._assinatura = assinatura
-            return list(self._registros)
-
 
 def _numero(v) -> float:
     return float(v) if isinstance(v, (int, float)) and not isinstance(v, bool) else 0.0
@@ -92,13 +62,16 @@ def _numero(v) -> float:
 def resumo(registros: list[dict]) -> dict:
     """Agregados anônimos que o painel de dados mostra além das estatísticas do Java."""
     total = len(registros)
+    if total < MINIMO_GRUPO:
+        return {"total": total, "suficiente": False, "percentEmRisco": 0, "porFaixa": [], "porSemana": [],
+                "sinaisNoRisco": [], "gastoAnualComunidade": 0}
     por_faixa = []
     grupos = defaultdict(list)
     for r in registros:
         grupos[r.get("faixaEtaria")].append(r)
     for faixa in FAIXAS:
         g = grupos.get(faixa, [])
-        if not g:
+        if len(g) < MINIMO_GRUPO:
             continue
         risco = sum(1 for r in g if r.get("nivel") in NIVEIS_RISCO)
         por_faixa.append({
@@ -120,6 +93,8 @@ def resumo(registros: list[dict]) -> dict:
     por_semana = []
     for (ano, semana) in sorted(semanas)[-12:]:
         scores = semanas[(ano, semana)]
+        if len(scores) < MINIMO_GRUPO:
+            continue
         inicio = date.fromisocalendar(ano, semana, 1)
         por_semana.append({
             "semana": inicio.isoformat(),
@@ -132,11 +107,12 @@ def resumo(registros: list[dict]) -> dict:
     sinais = [
         {"sinal": s, "rotulo": ROTULO_SINAL[s], "percent": round(100 * n / len(em_risco), 1)}
         for s, n in contagem.most_common(5)
-    ] if em_risco else []
+    ] if len(em_risco) >= MINIMO_GRUPO else []
 
     gasto_anual = sum(_numero(r.get("gastoMensal")) for r in registros) * 12
     return {
         "total": total,
+        "suficiente": True,
         "percentEmRisco": round(100 * len(em_risco) / total, 1) if total else 0,
         "porFaixa": por_faixa,
         "porSemana": por_semana,
@@ -149,7 +125,7 @@ def percentil(registros: list[dict], score: int) -> dict:
     """Quantas avaliações tiveram pontuação menor que a informada."""
     scores = [_numero(r.get("score")) for r in registros]
     total = len(scores)
-    if total < 5:
+    if total < MINIMO_GRUPO:
         return {"score": score, "total": total, "suficiente": False}
     menores = sum(1 for s in scores if s < score)
     iguais = sum(1 for s in scores if s == score)
@@ -223,7 +199,12 @@ def moderar(texto: str) -> dict:
 
 # --------------------------------------------------------------------------- HTTP
 
-def criar_handler(avaliacoes: Avaliacoes):
+def _avaliacoes(corpo) -> list[dict]:
+    lista = corpo.get("avaliacoes") if isinstance(corpo, dict) else None
+    return [r for r in lista if isinstance(r, dict)] if isinstance(lista, list) else []
+
+
+def criar_handler():
     class Handler(BaseHTTPRequestHandler):
         server_version = "RecomecoAnalise/1.0"
 
@@ -240,39 +221,38 @@ def criar_handler(avaliacoes: Avaliacoes):
             self.wfile.write(dados)
 
         def do_GET(self):
-            url = urlparse(self.path)
-            if url.path == "/saude":
+            if urlparse(self.path).path == "/saude":
                 return self._json(200, {"ok": True})
-            if url.path == "/resumo":
-                return self._json(200, resumo(avaliacoes.todas()))
-            if url.path == "/percentil":
-                valor = parse_qs(url.query).get("score", [""])[0]
-                if not valor.isdigit() or not 0 <= int(valor) <= 27:
-                    return self._json(400, {"erro": "Informe uma pontuação entre 0 e 27."})
-                return self._json(200, percentil(avaliacoes.todas(), int(valor)))
             return self._json(404, {"erro": "Rota não encontrada."})
 
         def do_POST(self):
-            if urlparse(self.path).path != "/moderar":
+            rota = urlparse(self.path).path
+            if rota not in ("/moderar", "/resumo", "/percentil"):
                 return self._json(404, {"erro": "Rota não encontrada."})
             tamanho = int(self.headers.get("Content-Length") or 0)
-            if tamanho > MAX_CORPO:
-                return self._json(413, {"erro": "Texto grande demais."})
+            if tamanho > (MAX_TEXTO if rota == "/moderar" else MAX_AVALIACOES):
+                return self._json(413, {"erro": "Conteúdo grande demais."})
             try:
                 corpo = json.loads(self.rfile.read(tamanho) or b"{}")
-            except json.JSONDecodeError:
+            except (json.JSONDecodeError, UnicodeDecodeError):
                 return self._json(400, {"erro": "JSON inválido."})
-            return self._json(200, moderar(corpo.get("texto") if isinstance(corpo, dict) else None))
+            if rota == "/moderar":
+                return self._json(200, moderar(corpo.get("texto") if isinstance(corpo, dict) else None))
+            if rota == "/resumo":
+                return self._json(200, resumo(_avaliacoes(corpo)))
+            score = corpo.get("score") if isinstance(corpo, dict) else None
+            if not isinstance(score, int) or isinstance(score, bool) or not 0 <= score <= 27:
+                return self._json(400, {"erro": "Informe uma pontuação entre 0 e 27."})
+            return self._json(200, percentil(_avaliacoes(corpo), score))
 
     return Handler
 
 
 def main() -> None:
-    pasta = Path(sys.argv[1] if len(sys.argv) > 1 else "data")
     porta = int(os.environ.get("ANALISE_PORTA", "8081"))
     host = os.environ.get("ANALISE_HOST", "127.0.0.1")
-    servidor = ThreadingHTTPServer((host, porta), criar_handler(Avaliacoes(pasta / "avaliacoes.jsonl")))
-    print(f"Análise do Recomeço rodando em http://{host}:{porta} (dados em {pasta.resolve()})")
+    servidor = ThreadingHTTPServer((host, porta), criar_handler())
+    print(f"Análise do Recomeço rodando em http://{host}:{porta}", flush=True)
     try:
         servidor.serve_forever()
     except KeyboardInterrupt:

@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 /** Mural anônimo de mensagens de apoio e superação. */
@@ -42,6 +43,7 @@ public final class DepoimentoService {
         double dias = in.get("diasSemApostar") instanceof Number n ? Math.max(0, Math.min(36500, n.intValue())) : 0;
 
         Map<String, Object> d = new LinkedHashMap<>();
+        d.put("id", UUID.randomUUID().toString());
         d.put("apelido", apelido);
         d.put("texto", texto);
         d.put("tipo", tipo);
@@ -73,6 +75,7 @@ public final class DepoimentoService {
         };
         for (String[] m : msgs) {
             Map<String, Object> d = new LinkedHashMap<>();
+            d.put("id", UUID.randomUUID().toString());
             d.put("apelido", m[0]);
             d.put("texto", m[2]);
             d.put("tipo", m[1]);

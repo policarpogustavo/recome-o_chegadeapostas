@@ -1,0 +1,4 @@
+# Scripts executados no Linux (container do Render) precisam de LF, mesmo editados no Windows.
+*.sh       text eol=lf
+Dockerfile text eol=lf
+*.bat      text eol=crlf

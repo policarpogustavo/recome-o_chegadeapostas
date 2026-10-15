@@ -1,0 +1,10 @@
+.git
+.github
+.vscode
+.env
+.env.*
+data
+backend/out
+backend/lib
+**/__pycache__
+analise/test_servico.py

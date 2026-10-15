@@ -1,4 +1,6 @@
 backend/out/
+backend/lib/
 data/
 __pycache__/
 *.tmp
+.env

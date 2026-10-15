@@ -1,6 +1,8 @@
 /*
  * Conta anônima (apelido e senha): login, cadastro e sincronização dos dados
  * pessoais (jornada, diário, vontades vencidas e recordes) com o servidor Java.
+ * O token da sessão fica neste aparelho (Api.token) e vai no header Authorization.
+ * Também oferece baixar os dados da conta e apagá-la (LGPD, art. 18).
  */
 const Conta = (() => {
   const $ = id => document.getElementById(id);
@@ -45,8 +47,13 @@ const Conta = (() => {
       await Api.put('usuario/dados', { dados: coletar() });
       $('contaSync').textContent = `Última sincronização: ${new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}.`;
     } catch (e) {
-      if (e.status === 401) definir({ logado: false, usuario: null });
+      if (e.status === 401) sessaoEncerrada();
     }
+  }
+
+  function sessaoEncerrada() {
+    Api.definirToken(null);
+    definir({ logado: false, usuario: null });
   }
 
   function agendar() {
@@ -112,9 +119,11 @@ const Conta = (() => {
     if (senha.length < 6) { erro.textContent = 'A senha precisa ter pelo menos 6 caracteres.'; return; }
     const btn = $('contaEnviar');
     btn.disabled = true;
-    erro.textContent = '';
+    erro.textContent = Api.estado === 'conectando' ? 'Conectando ao servidor… isso pode levar até um minuto.' : '';
     try {
       const r = await Api.post(modo === 'login' ? 'auth/login' : 'auth/cadastro', { usuario, senha });
+      erro.textContent = '';
+      Api.definirToken(r.token);
       $('formConta').reset();
       // Leva para a conta a avaliação feita antes do login neste aparelho.
       const ultima = Util.ler('ultima-avaliacao', null);
@@ -134,8 +143,63 @@ const Conta = (() => {
     clearTimeout(timerSync);
     await enviar();
     try { await Api.post('auth/sair'); } catch { /* sai mesmo assim */ }
+    Api.definirToken(null);
     PESSOAIS.forEach(Util.remover);
     location.reload();
+  });
+
+  // ------------------------------------------------------------ seus dados (LGPD)
+
+  $('contaExportar').addEventListener('click', async () => {
+    const btn = $('contaExportar');
+    btn.disabled = true;
+    try {
+      const dados = await Api.get('usuario/exportar');
+      const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `recomeco-meus-dados-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.append(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+    } catch (e) {
+      if (e.status === 401) sessaoEncerrada();
+      Util.toast(e.message);
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  function mostrarApagar(visivel) {
+    $('formApagar').hidden = !visivel;
+    $('contaApagarAbrir').hidden = visivel;
+    $('apagarErro').textContent = '';
+    $('formApagar').reset();
+    if (visivel) $('apagarSenha').focus();
+  }
+  $('contaApagarAbrir').addEventListener('click', () => mostrarApagar(true));
+  $('apagarCancelar').addEventListener('click', () => mostrarApagar(false));
+
+  $('formApagar').addEventListener('submit', async e => {
+    e.preventDefault();
+    const senha = $('apagarSenha').value;
+    if (!senha) { $('apagarErro').textContent = 'Digite a sua senha para confirmar.'; return; }
+    const btn = $('apagarEnviar');
+    btn.disabled = true;
+    try {
+      clearTimeout(timerSync);
+      await Api.apagar('usuario', { senha });
+      Api.definirToken(null);
+      PESSOAIS.forEach(Util.remover);
+      $('modalConta').close();
+      Util.toast('Sua conta e todos os dados dela foram apagados.');
+      setTimeout(() => location.reload(), 2500);
+    } catch (err) {
+      if (err.status === 401) { sessaoEncerrada(); $('modalConta').close(); }
+      $('apagarErro').textContent = err.message;
+      btn.disabled = false;
+    }
   });
 
   // ------------------------------------------------------------ início
@@ -143,6 +207,7 @@ const Conta = (() => {
   (async () => {
     try {
       const r = await Api.get('auth/eu');
+      if (!r.logado && !r.indisponivel) Api.definirToken(null); // sessão vencida ou encerrada
       definir({ logado: !!r.logado, usuario: r.usuario, disponivel: !r.indisponivel });
       if (r.logado) await puxar();
     } catch {

@@ -1,8 +1,9 @@
 /*
- * Versão da API que roda no próprio navegador. É usada quando o servidor Java
- * não está disponível (por exemplo, no GitHub Pages). Espelha o comportamento
- * de AvaliacaoService, ConteudoService e DepoimentoService; os dados ficam
- * salvos no localStorage deste aparelho.
+ * Versão da API que roda no próprio navegador. É usada quando o servidor não
+ * respondeu a tempo (ver Api.conectar em api.js) ou quando o site é aberto
+ * direto do disco, e também serve o conteúdo fixo enquanto o servidor acorda.
+ * Espelha AvaliacaoService, ConteudoService e DepoimentoService; os dados ficam
+ * salvos no localStorage deste aparelho. Contas precisam do servidor.
  */
 const ApiLocal = (() => {
   const ORIGENS = ['amigos', 'propaganda', 'influenciador', 'dinheiro_rapido', 'tedio', 'futebol', 'familia', 'outro'];
@@ -459,7 +460,7 @@ const ApiLocal = (() => {
   }
 
   const semConta = () => {
-    throw new Error('As contas só funcionam na versão do site com servidor. Aqui, os seus dados ficam salvos neste aparelho.');
+    throw new Error('As contas precisam do servidor, que não respondeu agora. Enquanto isso, os seus dados ficam salvos neste aparelho.');
   };
 
   // ------------------------------------------------------------ rotas
@@ -481,6 +482,8 @@ const ApiLocal = (() => {
     'POST auth/login': semConta,
     'POST auth/cadastro': semConta,
     'POST auth/sair': () => ({ ok: true }),
+    'GET usuario/exportar': semConta,
+    'DELETE usuario': semConta,
   };
 
   return {

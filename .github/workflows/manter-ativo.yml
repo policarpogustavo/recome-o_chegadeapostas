@@ -1,0 +1,32 @@
+# Chama /api/saude a cada 3 dias. A rota faz uma consulta leve no banco, o que reduz a
+# chance de o Supabase gratuito pausar o projeto por inatividade (ele pausa após 7 dias).
+# Configure em Settings > Secrets and variables > Actions a variável (ou secret)
+# RECOMECO_API_URL, por exemplo https://recomeco-api.onrender.com
+name: Manter o banco ativo
+
+on:
+  schedule:
+    - cron: "17 12 */3 * *"   # 12:17 UTC, nos dias 1, 4, 7, ... de cada mês
+  workflow_dispatch:           # permite rodar na mão, na aba Actions
+
+permissions: {}
+
+jobs:
+  saude:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Chamar /api/saude
+        env:
+          API_URL: ${{ vars.RECOMECO_API_URL || secrets.RECOMECO_API_URL }}
+        run: |
+          if [ -z "$API_URL" ]; then
+            echo "::error::Defina RECOMECO_API_URL em Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          # O Render gratuito pode levar cerca de um minuto para acordar; por isso as novas tentativas.
+          # Responde 503 se o banco não respondeu, e aí o job falha (o GitHub avisa por e-mail).
+          curl --fail --silent --show-error --max-time 120 \
+               --retry 5 --retry-delay 20 --retry-all-errors \
+               "${API_URL%/}/api/saude"
+          echo
