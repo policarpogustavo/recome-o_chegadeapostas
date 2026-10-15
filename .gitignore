@@ -1,2 +1,4 @@
 backend/out/
 data/
+__pycache__/
+*.tmp

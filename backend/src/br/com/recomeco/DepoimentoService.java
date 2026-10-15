@@ -19,9 +19,11 @@ public final class DepoimentoService {
     private static final Set<String> TIPOS = Set.of("superacao", "apoio", "familia");
 
     private final Storage storage;
+    private final AnaliseCliente analise;
 
-    public DepoimentoService(Storage storage) throws IOException {
+    public DepoimentoService(Storage storage, AnaliseCliente analise) throws IOException {
         this.storage = storage;
+        this.analise = analise;
         if (storage.size() == 0) semear();
     }
 
@@ -31,6 +33,11 @@ public final class DepoimentoService {
         if (LINK.matcher(texto).find()) throw new ValidacaoException("Links não são permitidos no mural.");
         String apelido = texto(in.get("apelido"), MAX_APELIDO);
         if (apelido.isEmpty()) apelido = "Anônimo";
+
+        // Revisão mais completa (ofensas, telefones, e-mails, CPF) feita pelo serviço Python.
+        String motivo = analise.moderar(apelido + " " + texto);
+        if (motivo != null && !motivo.isEmpty()) throw new ValidacaoException(motivo);
+
         String tipo = in.get("tipo") instanceof String s && TIPOS.contains(s) ? s : "apoio";
         double dias = in.get("diasSemApostar") instanceof Number n ? Math.max(0, Math.min(36500, n.intValue())) : 0;
 
@@ -60,9 +67,9 @@ public final class DepoimentoService {
     /** Mensagens iniciais da equipe, identificadas como tal na interface. */
     private void semear() throws IOException {
         String[][] msgs = {
-                {"Equipe Recomeço", "apoio", "Se você chegou até aqui, já deu um passo importante. Recaídas podem acontecer — elas não apagam o caminho que você já percorreu."},
+                {"Equipe Recomeço", "apoio", "Se você chegou até aqui, já deu um passo importante. Recaídas podem acontecer, mas elas não apagam o caminho que você já percorreu."},
                 {"Equipe Recomeço", "familia", "Familiares: o vício não é falta de caráter. Proteja as finanças da casa, mas não feche a porta do diálogo."},
-                {"Equipe Recomeço", "superacao", "Deixe aqui sua mensagem anônima. Contar quantos dias você está sem apostar inspira quem está começando agora."},
+                {"Equipe Recomeço", "superacao", "Deixe aqui a sua mensagem anônima. Contar há quantos dias você está sem apostar inspira quem está começando agora."},
         };
         for (String[] m : msgs) {
             Map<String, Object> d = new LinkedHashMap<>();

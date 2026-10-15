@@ -1,4 +1,4 @@
-/* Mural anônimo de mensagens — lê e publica via API Java. */
+/* Mural anônimo de mensagens: lê e publica pela API Java. */
 (() => {
   const $ = id => document.getElementById(id);
   const TAGS = { superacao: 'Superação', apoio: 'Apoio', familia: 'Família' };

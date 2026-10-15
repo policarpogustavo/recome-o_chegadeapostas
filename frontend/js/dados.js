@@ -55,7 +55,7 @@
 
     document.getElementById('ciclo').innerHTML = d.ciclo.map(p => `
       <div class="ciclo__passo"><h4>${Util.escapar(p.titulo)}</h4><p>${Util.escapar(p.texto)}</p></div>`).join('')
-      + '<p class="ciclo__volta">↺ E tudo recomeça — cada volta deixa o vício mais forte.</p>';
+      + '<p class="ciclo__volta">↺ E tudo recomeça. Cada volta deixa o vício mais forte.</p>';
 
     const dest = document.getElementById('destaques');
     dest.innerHTML = d.destaques.map(x => `
@@ -106,9 +106,9 @@
 
   // ---------- Estatísticas da comunidade ----------
   const ROTULOS = {
-    tipos: { esportiva: 'Esportivas', cassino: 'Cassino / slots', crash: 'Jogos crash', poquer: 'Pôquer', loteria: 'Loterias' },
+    tipos: { esportiva: 'Esportivas', cassino: 'Cassino e slots', crash: 'Jogos crash', poquer: 'Pôquer', loteria: 'Loterias' },
     origem: { amigos: 'Amigos', propaganda: 'Propaganda', influenciador: 'Influenciador', dinheiro_rapido: 'Dinheiro rápido', futebol: 'Futebol', tedio: 'Tédio', familia: 'Família', outro: 'Outro' },
-    dia: { acorda_pensando: 'Acorda pensando', aposta_trabalho: 'Aposta no trabalho', perde_sono: 'Perde o sono', ansiedade: 'Ansiedade/culpa', mente: 'Mente', isolamento: 'Isolamento', pede_emprestado: 'Pede emprestado', recuperar_perdas: 'Tenta recuperar', irritado_sem_jogar: 'Irritação', deixou_lazer: 'Largou o lazer' },
+    dia: { acorda_pensando: 'Acorda pensando', aposta_trabalho: 'Aposta no trabalho', perde_sono: 'Perde o sono', ansiedade: 'Ansiedade ou culpa', mente: 'Mente', isolamento: 'Isolamento', pede_emprestado: 'Pede emprestado', recuperar_perdas: 'Tenta recuperar', irritado_sem_jogar: 'Irritação', deixou_lazer: 'Largou o lazer' },
   };
   window.ROTULOS = ROTULOS;
 
@@ -125,12 +125,12 @@
     try { s = await Api.get('estatisticas'); } catch { return; }
     if (Api.semServidor) {
       document.getElementById('statsTitulo').textContent = 'Suas avaliações';
-      document.getElementById('statsSub').textContent = 'Nesta versão online, os resultados ficam só no seu aparelho — ninguém mais vê.';
+      document.getElementById('statsSub').textContent = 'Nesta versão online, os resultados ficam só no seu aparelho. Ninguém mais tem acesso a eles.';
     }
     const graficos = document.querySelector('.stats-graficos');
     if (!s.total) {
       document.getElementById('statsTiles').innerHTML =
-        '<p class="stats-vazio">Ainda não há avaliações por aqui. <a href="#avaliacao">Faça a sua avaliação</a> — leva 3 minutos e o resultado aparece neste painel.</p>';
+        '<p class="stats-vazio">Ainda não há avaliações por aqui. <a href="#avaliacao">Faça a sua avaliação</a>: leva 3 minutos, e o resultado aparece neste painel.</p>';
       graficos.style.display = 'none';
       return;
     }
@@ -147,6 +147,25 @@
     renderBarras(document.getElementById('statsTipo'), paraBarras(s.porTipo, ROTULOS.tipos, s.total), { max: 100, formatar: pct });
     renderBarras(document.getElementById('statsOrigem'), paraBarras(s.porOrigem, ROTULOS.origem, s.total), { max: 100, formatar: pct });
     renderBarras(document.getElementById('statsDia'), paraBarras(s.porDiaADia, ROTULOS.dia, s.total), { max: 100, formatar: pct });
+    carregarAnalise();
+  }
+
+  // ---------- Análise detalhada (serviço em Python) ----------
+  async function carregarAnalise() {
+    const el = document.getElementById('analise');
+    let a;
+    try { a = await Api.get('analise/resumo'); } catch { el.hidden = true; return; }
+    if (!a.total || !a.porFaixa.length) { el.hidden = true; return; }
+    el.hidden = false;
+    document.getElementById('analiseSub').textContent =
+      `${Util.numero(a.percentEmRisco, 1)}% das avaliações indicam risco moderado ou jogo problemático. `
+      + `Juntas, essas pessoas gastam cerca de ${Util.moeda(a.gastoAnualComunidade)} por ano com apostas.`;
+    const pct = v => `${Util.numero(v, 1)}%`;
+    renderBarras(document.getElementById('analiseFaixa'),
+      a.porFaixa.map(f => ({ rotulo: f.rotulo, valor: f.percentRisco, nota: `${f.total} avaliação(ões), pontuação média ${Util.numero(f.mediaScore, 1)}` })),
+      { max: 100, formatar: pct });
+    renderBarras(document.getElementById('analiseSinais'),
+      a.sinaisNoRisco.map(s => ({ rotulo: s.rotulo, valor: s.percent })), { max: 100, formatar: pct });
   }
   window.carregarStats = carregarStats;
   document.getElementById('btnAtualizarStats').addEventListener('click', () => { carregarStats(); Util.toast('Estatísticas atualizadas'); });
@@ -308,7 +327,7 @@
     const dif = final - cfg.saldo;
     const apostado = (hist.length - 1) * cfg.aposta;
     resultado.innerHTML = dif >= 0
-      ? `Depois de <strong>${Util.numero(hist.length - 1)}</strong> rodadas você terminou com <strong>${Util.moeda(final, 2)}</strong> (+${Util.moeda(dif, 2)}). Sorte rara — simule de novo ou com 1.000 jogadores e veja o que acontece com a maioria.`
+      ? `Depois de <strong>${Util.numero(hist.length - 1)}</strong> rodadas você terminou com <strong>${Util.moeda(final, 2)}</strong> (+${Util.moeda(dif, 2)}). Foi uma sorte rara. Simule de novo ou com 1.000 jogadores e veja o que acontece com a maioria.`
       : `Depois de <strong>${Util.numero(hist.length - 1)}</strong> rodadas (${Util.moeda(apostado)} apostados no total), sobraram <strong>${Util.moeda(final, 2)}</strong>. Prejuízo: <strong class="perda">${Util.moeda(-dif, 2)}</strong>.${final < cfg.aposta ? ' <strong class="perda">O saldo acabou.</strong>' : ''}`;
   });
 
@@ -327,7 +346,7 @@
     estado = { cfg, linhas, esperado: esperadoDe(cfg, cfg.rodadas) };
     desenhar();
     const media = soma / 1000;
-    resultado.innerHTML = `De 1.000 jogadores, só <strong>${Util.numero(lucro / 10, 1)}%</strong> terminaram no lucro. <strong class="perda">${Util.numero(quebrou / 10, 1)}%</strong> perderam tudo. Em média, cada um terminou com <strong>${Util.moeda(media, 2)}</strong> — perda de <strong class="perda">${Util.moeda(cfg.saldo - media, 2)}</strong>. Quem ganha sempre é a casa.`;
+    resultado.innerHTML = `De 1.000 jogadores, só <strong>${Util.numero(lucro / 10, 1)}%</strong> terminaram no lucro. <strong class="perda">${Util.numero(quebrou / 10, 1)}%</strong> perderam tudo. Em média, cada um terminou com <strong>${Util.moeda(media, 2)}</strong>, uma perda de <strong class="perda">${Util.moeda(cfg.saldo - media, 2)}</strong>. Quem sempre ganha é a casa.`;
   });
 
   addEventListener('resize', desenhar);

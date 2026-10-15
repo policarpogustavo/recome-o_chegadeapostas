@@ -1,4 +1,4 @@
-/* "Minha jornada": contador de dias sem apostar, economia, metas, conquistas e diário (localStorage). */
+/* "Minha jornada": contador de dias sem apostar, economia, metas, conquistas e diário (localStorage e conta). */
 (() => {
   const MARCOS = [
     { dias: 1, icone: '🌱', nome: '1º dia' },
@@ -72,6 +72,21 @@
       `<li class="${estado.inicio && dias >= m.dias ? 'ganha' : ''}" title="${m.nome} sem apostar"><span>${m.icone}</span>${m.nome}</li>`).join('');
 
     renderDiario();
+    comemorar(dias);
+  }
+
+  // Comemora uma vez cada conquista nova (o registro fica no aparelho).
+  function comemorar(dias) {
+    if (!estado.inicio) return;
+    const ganho = [...MARCOS].reverse().find(m => m.dias <= dias);
+    const visto = Util.ler('marco-comemorado', 0);
+    if (!ganho || ganho.dias <= visto) return;
+    Util.salvar('marco-comemorado', ganho.dias, { silencioso: true });
+    setTimeout(() => {
+      Util.confete();
+      Util.som('vitoria');
+      Util.toast(`${ganho.icone} Conquista desbloqueada: ${ganho.nome} sem apostar!`);
+    }, 600);
   }
 
   function renderDiario() {
@@ -111,6 +126,7 @@
     if (!confirm('Tudo bem. Recaídas fazem parte de muitas recuperações. Reiniciar o contador a partir de hoje?')) return;
     estado.recaidas = (estado.recaidas || 0) + 1;
     estado.inicio = dataLocal(hoje());
+    Util.salvar('marco-comemorado', 0, { silencioso: true });
     salvar();
     Util.toast('Contador reiniciado. O que você aprendeu continua com você. 💚');
   });
@@ -141,6 +157,11 @@
     if (gasto > 0 && !estado.gasto) { estado.gasto = gasto; salvar(); }
   };
   addEventListener('jornada', render);
+  // Dados que chegaram da conta (outro aparelho)
+  addEventListener('sincronizado', () => {
+    estado = Util.ler('jornada', estado);
+    render();
+  });
 
   render();
 })();

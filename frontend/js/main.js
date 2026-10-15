@@ -83,6 +83,7 @@
   setInterval(trocarFrase, 15000);
 
   // ---------- Botão "Estou com vontade de apostar" ----------
+  // Os botões com data-abrir-sos podem estar dentro de outras janelas (ex.: avaliação).
   const modal = document.getElementById('modalSos');
   const tempoEl = document.getElementById('sosTempo');
   const btnIniciar = document.getElementById('sosIniciar');
@@ -110,7 +111,9 @@
         btnIniciar.textContent = 'Começar de novo';
         const vitorias = Util.ler('vontades-vencidas', 0) + 1;
         Util.salvar('vontades-vencidas', vitorias);
-        Util.toast(`Você venceu a vontade! Já são ${vitorias} vez(es).`);
+        Util.toast(vitorias === 1 ? 'Você venceu a vontade! Essa é a primeira de muitas.' : `Você venceu a vontade! Já são ${vitorias} vezes.`);
+        Util.confete();
+        Util.som('vitoria');
         window.dispatchEvent(new Event('jornada'));
       }
     }, 1000);
